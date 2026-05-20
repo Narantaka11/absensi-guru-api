@@ -43,11 +43,7 @@ class DatabaseSeeder extends Seeder
                 'role' => User::ROLE_TEACHER,
             ]);
 
-            // Create presence records for this month
-            $this->createPresences($teacher);
-
-            // Create salary record for this month
-            $this->createSalary($teacher);
+          
         }
     }
 
