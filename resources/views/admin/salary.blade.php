@@ -109,6 +109,10 @@
                         <th class="px-6 py-4 text-center font-semibold text-gray-700">
                             Status
                         </th>
+
+                        <th class="px-6 py-4 text-center font-semibold text-gray-700">
+                            Aksi
+                        </th>
                     </tr>
                     </thead>
 
@@ -159,21 +163,61 @@
                             <td class="px-6 py-4 text-center">
 
                                 @if($salary->status == 'draft')
-                                    <span class="px-3 py-1 rounded-lg bg-gray-600 text-white text-xs font-semibold">
+                                    <span id="status-badge-{{ $salary->id }}"
+                                          class="px-3 py-1 rounded-lg bg-gray-600 text-white text-xs font-semibold">
                                         Draft
                                     </span>
 
                                 @elseif($salary->status == 'approved')
-                                    <span class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-semibold">
+                                    <span id="status-badge-{{ $salary->id }}"
+                                          class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-semibold">
                                         Approved
                                     </span>
 
                                 @else
-                                    <span class="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold">
+                                    <span id="status-badge-{{ $salary->id }}"
+                                          class="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold">
                                         Paid
                                     </span>
                                 @endif
 
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <div id="actions-{{ $salary->id }}" class="flex items-center justify-center gap-2">
+
+                                    {{-- Always show Detail --}}
+                                    <button onclick="viewDetail({{ $salary->id }})"
+                                            class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition">
+                                        Detail
+                                    </button>
+
+                                    {{-- draft → Approve --}}
+                                    @if($salary->status == 'draft')
+                                        <button id="approve-btn-{{ $salary->id }}"
+                                                onclick="approvePayroll({{ $salary->id }})"
+                                                class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                            Approve
+                                        </button>
+                                    @endif
+
+                                    {{-- approved → Mark as Paid + Revert --}}
+                                    @if($salary->status == 'approved')
+                                        <button id="paid-btn-{{ $salary->id }}"
+                                                onclick="markAsPaid({{ $salary->id }})"
+                                                class="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                            Mark as Paid
+                                        </button>
+                                        <button id="revert-btn-{{ $salary->id }}"
+                                                onclick="revertToDraft({{ $salary->id }})"
+                                                class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                            Revert
+                                        </button>
+                                    @endif
+
+                                    {{-- paid → readonly (Detail only, sudah di-render di atas) --}}
+
+                                </div>
                             </td>
 
                         </tr>
