@@ -10,15 +10,16 @@ class LocationSeeder extends Seeder
     public function run(): void
     {
         // Sesuaikan koordinat & radius dengan lokasi sekolah yang sebenarnya
-        Location::firstOrCreate(
+        Location::updateOrCreate(
             ['name' => 'Gedung Utama Sekolah'],
             [
-                'address'       => 'Jl. Sekolah No. 1, Jakarta',
-                'latitude'      => -6.2088,   // ← ganti dengan koordinat GPS sekolah
-                'longitude'     => 106.8456,  // ← ganti dengan koordinat GPS sekolah
+                'address'       => 'Universitas BSI Kampus Margonda',
+                'latitude'      => -6.394678337916196,  // ← ganti dengan koordinat GPS sekolah
+                'longitude'     => 106.87116289815354,  // ← ganti dengan koordinat GPS sekolah
                 'radius_meters' => 200,        // radius valid 200 meter
                 'is_active'     => true,
             ]
         );
     }
 }
+

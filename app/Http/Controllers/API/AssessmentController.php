@@ -18,6 +18,26 @@ class AssessmentController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+ * Riwayat penilaian guru login.
+ */
+    public function myAssessments(Request $request): JsonResponse
+    {
+        $assessments = Assessment::where(
+            'user_id',
+            $request->user()->id
+        )
+        ->orderBy('year', 'desc')
+        ->orderBy('month', 'desc')
+        ->get();
+
+        return $this->success(
+            'Data penilaian berhasil diambil.',
+            [
+                'items' => $assessments,
+            ]
+        );
+    }
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([

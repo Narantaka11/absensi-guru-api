@@ -8,116 +8,289 @@ use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\PresenceController;
 use App\Http\Controllers\API\PayrollController;
 use App\Http\Controllers\API\TeacherController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ScheduleController;
+
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
 
     // =========================================================================
     // Auth — publik (tidak perlu token)
     // =========================================================================
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post(
+        '/auth/login',
+        [AuthController::class, 'login']
+    );
 
     // =========================================================================
     // Endpoint privat (semua butuh token Sanctum)
     // =========================================================================
     Route::middleware('auth:sanctum')->group(function (): void {
 
-        // Auth
-        Route::post('/auth/logout', [AuthController::class, 'logout']);
-        Route::get('/auth/me',      [AuthController::class, 'me']);
+        // =========================================================================
+        // AUTH
+        // =========================================================================
+        Route::post(
+            '/auth/logout',
+            [AuthController::class, 'logout']
+        );
 
-        // =====================================================================
+        Route::get(
+            '/auth/me',
+            [AuthController::class, 'me']
+        );
+
+        // =========================================================================
         // Lokasi sekolah — guru & admin
-        // =====================================================================
+        // =========================================================================
         Route::prefix('locations')->group(function (): void {
-            Route::get('/',         [LocationController::class, 'index']);    // list semua lokasi aktif
-            Route::get('/nearest',  [LocationController::class, 'nearest']); // lokasi terdekat dari koordinat
-            Route::get('/{location}', [LocationController::class, 'show']);  // detail satu lokasi
+
+            Route::get(
+                '/',
+                [LocationController::class, 'index']
+            );
+
+            Route::get(
+                '/nearest',
+                [LocationController::class, 'nearest']
+            );
+
+            Route::get(
+                '/{location}',
+                [LocationController::class, 'show']
+            );
         });
 
-        // =====================================================================
+        // =========================================================================
         // Absensi — guru (teacher)
-        // Day 4: check-in/check-out GPS + foto wajib
-        // Day 6: rekap sendiri
-        // =====================================================================
+        // =========================================================================
         Route::prefix('presence')->group(function (): void {
-            Route::get('/today',      [PresenceController::class, 'today']);    // status hari ini
-            Route::get('/history',    [PresenceController::class, 'history']); // histori paginated
-            Route::get('/summary',    [PresenceController::class, 'summary']); // ringkasan bulan
-            Route::post('/check-in',  [PresenceController::class, 'checkIn']);  // Day 4 — foto wajib + geofence
-            Route::post('/check-out', [PresenceController::class, 'checkOut']); // Day 4 — foto wajib + geofence
-            Route::post('/izin',      [PresenceController::class, 'izin']);  // Day 4 — izin (tanpa geofence, tapi wajib foto)
-            Route::post('/sakit',     [PresenceController::class, 'sakit']); // Day 4 — sakit (tanpa geofence, tapi wajib foto)
+
+            Route::get(
+                '/today',
+                [PresenceController::class, 'today']
+            );
+
+            Route::get(
+                '/history',
+                [PresenceController::class, 'history']
+            );
+
+            Route::get(
+                '/summary',
+                [PresenceController::class, 'summary']
+            );
+
+            Route::post(
+                '/check-in',
+                [PresenceController::class, 'checkIn']
+            );
+
+            Route::post(
+                '/check-out',
+                [PresenceController::class, 'checkOut']
+            );
+
+            Route::post(
+                '/izin',
+                [PresenceController::class, 'izin']
+            );
+
+            Route::post(
+                '/sakit',
+                [PresenceController::class, 'sakit']
+            );
         });
 
-        // =====================================================================
+        // =========================================================================
         // Penggajian — guru (teacher)
-        // Day 7: guru lihat slip gaji sendiri
-        // =====================================================================
+        // =========================================================================
         Route::prefix('payroll')->group(function (): void {
-            Route::get('/me',       [PayrollController::class, 'mySlip']);    // slip bulan ini
-            Route::get('/history',  [PayrollController::class, 'myHistory']); // histori per tahun
+
+            Route::get(
+                '/me',
+                [PayrollController::class, 'mySlip']
+            );
+
+            Route::get(
+                '/history',
+                [PayrollController::class, 'myHistory']
+            );
         });
 
-        // =====================================================================
+        // =========================================================================
         // Jadwal Mengajar — guru (teacher)
-        // =====================================================================
+        // =========================================================================
         Route::prefix('schedules')->group(function (): void {
-            Route::get('/',[ScheduleController::class, 'index']);
+
+            Route::get(
+                '/',
+                [ScheduleController::class, 'index']
+            );
         });
 
-        // =====================================================================
+        // =========================================================================
+        // Penilaian Guru — mobile teacher
+        // =========================================================================
+        Route::prefix('assessments')->group(function (): void {
+
+            Route::get(
+                '/me',
+                [AssessmentController::class, 'myAssessments']
+            );
+        });
+
+        // =========================================================================
         // Admin / Kepala Sekolah — proteksi api.admin
-        // Day 5: review bukti absensi (foto + GPS + geofence)
-        // Day 6: rekap periodik
-        // Day 7: kelola penggajian (generate, approve, paid, revert)
-        // =====================================================================
-        Route::middleware('api.admin')->prefix('admin')->group(function (): void {
+        // =========================================================================
+        Route::middleware('api.admin')
+            ->prefix('admin')
+            ->group(function (): void {
 
-            // Day 5 — Review absensi
-            Route::prefix('presences')->group(function (): void {
-                Route::get('/',             [AdminPresenceController::class, 'index']);  // list + filter
-                Route::get('/{presence}',   [AdminPresenceController::class, 'show']);  // detail + audit
+                // =========================================================================
+                // Review absensi
+                // =========================================================================
+                Route::prefix('presences')->group(function (): void {
+
+                    Route::get(
+                        '/',
+                        [AdminPresenceController::class, 'index']
+                    );
+
+                    Route::get(
+                        '/{presence}',
+                        [AdminPresenceController::class, 'show']
+                    );
+                });
+
+                // =========================================================================
+                // Data guru
+                // =========================================================================
+                Route::prefix('teachers')->group(function (): void {
+
+                    Route::get(
+                        '/',
+                        [AdminPresenceController::class, 'teachers']
+                    );
+
+                    Route::get(
+                        '/{user}',
+                        [AdminPresenceController::class, 'teacherShow']
+                    );
+
+                    Route::get(
+                        '/{user}/presences',
+                        [AdminPresenceController::class, 'teacherPresences']
+                    );
+                });
+
+                // =========================================================================
+                // Rekap periodik
+                // =========================================================================
+                Route::prefix('recap')->group(function (): void {
+
+                    Route::get(
+                        '/daily',
+                        [AdminRecapController::class, 'daily']
+                    );
+
+                    Route::get(
+                        '/weekly',
+                        [AdminRecapController::class, 'weekly']
+                    );
+
+                    Route::get(
+                        '/monthly',
+                        [AdminRecapController::class, 'monthly']
+                    );
+
+                    Route::get(
+                        '/teachers/{user}',
+                        [AdminRecapController::class, 'teacherDetail']
+                    );
+                });
+
+                // =========================================================================
+                // Penggajian admin
+                // =========================================================================
+                Route::prefix('payroll')->group(function (): void {
+
+                    Route::get(
+                        '/',
+                        [PayrollController::class, 'index']
+                    );
+
+                    Route::get(
+                        '/{salary}',
+                        [PayrollController::class, 'show']
+                    );
+
+                    Route::post(
+                        '/generate',
+                        [PayrollController::class, 'generate']
+                    );
+
+                    Route::post(
+                        '/{salary}/approve',
+                        [PayrollController::class, 'approve']
+                    );
+
+                    Route::post(
+                        '/{salary}/paid',
+                        [PayrollController::class, 'markAsPaid']
+                    );
+
+                    Route::post(
+                        '/{salary}/revert',
+                        [PayrollController::class, 'revert']
+                    );
+                });
+
+                // =========================================================================
+                // Penilaian Kinerja Guru
+                // =========================================================================
+                Route::prefix('assessments')->group(function (): void {
+
+                    Route::get(
+                        '/',
+                        [AssessmentController::class, 'index']
+                    );
+
+                    Route::post(
+                        '/',
+                        [AssessmentController::class, 'store']
+                    );
+
+                    Route::get(
+                        '/unassessed-teachers',
+                        [AssessmentController::class, 'unassessedTeachers']
+                    );
+
+                    Route::get(
+                        '/{assessment}',
+                        [AssessmentController::class, 'show']
+                    );
+
+                    Route::put(
+                        '/{assessment}',
+                        [AssessmentController::class, 'update']
+                    );
+
+                    Route::delete(
+                        '/{assessment}',
+                        [AssessmentController::class, 'destroy']
+                    );
+                });
+
+                // =========================================================================
+                // CRUD Guru
+                // =========================================================================
+                Route::apiResource(
+                    'teachers',
+                    TeacherController::class
+                )->parameters([
+                            'teachers' => 'user'
+                        ]);
             });
-
-            // Day 5 — Data guru
-            Route::prefix('teachers')->group(function (): void {
-                Route::get('/',                         [AdminPresenceController::class, 'teachers']);         // list guru + summary
-                Route::get('/{user}',                   [AdminPresenceController::class, 'teacherShow']);      // profil + summary guru
-                Route::get('/{user}/presences',         [AdminPresenceController::class, 'teacherPresences']); // absensi guru tertentu
-            });
-
-            // Day 6 — Rekap periodik
-            Route::prefix('recap')->group(function (): void {
-                Route::get('/daily',              [AdminRecapController::class, 'daily']);         // rekap harian
-                Route::get('/weekly',             [AdminRecapController::class, 'weekly']);        // rekap mingguan
-                Route::get('/monthly',            [AdminRecapController::class, 'monthly']);       // rekap bulanan
-                Route::get('/teachers/{user}',    [AdminRecapController::class, 'teacherDetail']); // detail guru per bulan
-            });
-
-            // Day 7 — Manajemen penggajian
-            Route::prefix('payroll')->group(function (): void {
-                Route::get('/',                   [PayrollController::class, 'index']);        // daftar slip semua guru
-                Route::get('/{salary}',           [PayrollController::class, 'show']);         // detail satu slip
-                Route::post('/generate',          [PayrollController::class, 'generate']);     // kalkulasi payroll (satu/semua)
-                Route::post('/{salary}/approve',  [PayrollController::class, 'approve']);      // setujui slip (draft→approved)
-                Route::post('/{salary}/paid',     [PayrollController::class, 'markAsPaid']);   // tandai sudah dibayar (approved→paid)
-                Route::post('/{salary}/revert',   [PayrollController::class, 'revert']);       // kembalikan ke draft (approved→draft)
-            });
-
-            // Penilaian Kinerja Guru
-            Route::prefix('assessments')->group(function (): void {
-                Route::get('/', [AssessmentController::class, 'index']);
-                Route::post('/', [AssessmentController::class, 'store']);
-                Route::get('/unassessed-teachers', [AssessmentController::class, 'unassessedTeachers']);
-                Route::get('/{assessment}', [AssessmentController::class, 'show']);
-                Route::put('/{assessment}', [AssessmentController::class, 'update']);
-                Route::delete('/{assessment}', [AssessmentController::class, 'destroy']);
-            });
-
-            // CRUD Guru
-            Route::apiResource('teachers', TeacherController::class)->parameters(['teachers' => 'user']);
-        });
     });
 });
