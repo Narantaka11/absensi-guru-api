@@ -51,12 +51,27 @@ class PayrollService
         $workingDays = $this->countWorkingDays($month, $year);
 
         // Rekap kehadiran
-        $totalPresent   = $presences->whereIn('status', ['hadir', 'terlambat'])->count();
-        $totalSick      = $presences->where('status', 'sakit')->count();
-        $totalPermission= $presences->where('status', 'izin')->count();
-        // Hari absen = hari kerja - hadir - sakit - izin (sisa = tidak_hadir tanpa keterangan)
-        $totalAbsent    = max(0, $workingDays - $totalPresent - $totalSick - $totalPermission);
-        $totalLateMinutes = (int) $presences->sum('late_minutes');
+        $totalPresent = $presences
+        ->whereIn('status', ['hadir', 'terlambat'])
+        ->count();
+
+        $totalSick = $presences
+        ->where('status', 'sakit')
+        ->count();
+
+        $totalPermission = $presences
+        ->where('status', 'izin')
+        ->count();
+
+        // Hanya status tidak_hadir yang dianggap alpha dan dikenakan potongan
+        $totalAbsent = $presences
+        ->where('status', 'tidak_hadir')
+        ->count();
+
+        $totalLateMinutes = max(
+            0,
+            (int) abs($presences->sum('late_minutes'))
+        );
 
         // Potongan
         $dailyRate            = $workingDays > 0 ? $baseSalary / $workingDays : 0;

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Presence;
 use App\Models\Salary;
+use App\Models\Teacher;   // 👈 TAMBAH INI
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
@@ -13,158 +14,124 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         // Create admin user
         User::create([
-            'name' => 'Admin Sekolah',
-            'email' => 'admin@sekolah.com',
+            'name'     => 'Admin Sekolah',
+            'email'    => 'admin@sekolah.com',
             'password' => bcrypt('password'),
-            'role' => User::ROLE_ADMIN,
+            'role'     => User::ROLE_ADMIN,
         ]);
 
-        // Create teacher users
         $teachers = [
-            ['name' => 'Budi Santoso', 'email' => 'budi@sekolah.com'],
+            ['name' => 'Budi Santoso',  'email' => 'budi@sekolah.com'],
             ['name' => 'Siti Nurhaliza', 'email' => 'siti@sekolah.com'],
-            ['name' => 'Ahmad Wijaya', 'email' => 'ahmad@sekolah.com'],
-            ['name' => 'Rini Pratiwi', 'email' => 'rini@sekolah.com'],
-            ['name' => 'Eka Putra', 'email' => 'eka@sekolah.com'],
+            ['name' => 'Ahmad Wijaya',   'email' => 'ahmad@sekolah.com'],
+            ['name' => 'Rini Pratiwi',   'email' => 'rini@sekolah.com'],
+            ['name' => 'Eka Putra',      'email' => 'eka@sekolah.com'],
         ];
 
         foreach ($teachers as $teacherData) {
+            // 1. Create user
             $teacher = User::create([
-                'name' => $teacherData['name'],
-                'email' => $teacherData['email'],
+                'name'     => $teacherData['name'],
+                'email'    => $teacherData['email'],
                 'password' => bcrypt('password'),
-                'role' => User::ROLE_TEACHER,
+                'role'     => User::ROLE_TEACHER,
             ]);
 
-          // Create presence records for this month
+            // 👇 TAMBAH INI — profile guru dengan gaji pokok random
+            Teacher::create([
+                'user_id'    => $teacher->id,
+                'nip'        => '19850' . rand(1000, 9999) . '2020' . rand(10, 99),
+                'phone'      => '08' . rand(1000000000, 9999999999),
+                'address'    => 'Jl. Pendidikan No. ' . rand(1, 100) . ', Jakarta',
+                'subject'    => collect(['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'IPA', 'IPS'])->random(),
+                'base_salary' => 3_000_000,
+            ]);
+
+            // 2. Create presence records
             $this->createPresences($teacher);
-        // Create salary record for this month
+
+            // 3. Create salary record
             $this->createSalary($teacher);
         }
     }
 
-    /**
-     * Create presence records for the month
-     */
     private function createPresences(User $teacher): void
     {
-        $now = now();
+        $now   = now();
         $month = $now->month;
-        $year = $now->year;
+        $year  = $now->year;
 
-        // Get number of working days in the month
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($year, $month, $day);
 
-            // Skip weekends
             if ($date->isWeekend()) {
                 continue;
             }
 
-            // Random presence status
             $rand = rand(1, 100);
 
             if ($rand > 90) {
                 // 10% absent
-                $status = 'tidak_hadir';
-                $checkInTime = null;
+                $status       = 'tidak_hadir';
+                $checkInTime  = null;
                 $checkOutTime = null;
-                $lateMinutes = 0;
-            } else if ($rand > 75) {
+                $lateMinutes  = 0;
+            } elseif ($rand > 75) {
                 // 15% sick
-                $status = 'sakit';
-                $checkInTime = null;
+                $status       = 'sakit';
+                $checkInTime  = null;
                 $checkOutTime = null;
-                $lateMinutes = 0;
-            } else if ($rand > 15) {
+                $lateMinutes  = 0;
+            } elseif ($rand > 15) {
                 // 60% present on time
-                $status = 'hadir';
-                $hour = rand(6, 7);
-                $minute = rand(0, 59);
-                $checkInTime = Carbon::create(null, null, null, $hour, $minute, 0);
+                $status       = 'hadir';
+                $hour         = rand(6, 7);
+                $minute       = rand(0, 59);
+                $checkInTime  = Carbon::create(null, null, null, $hour, $minute, 0);
                 $checkOutTime = Carbon::create(null, null, null, 16 + rand(0, 1), rand(0, 59), 0);
-                $lateMinutes = 0;
+                $lateMinutes  = 0;
             } else {
                 // 25% late
-                $status = 'terlambat';
-                $hour = rand(7, 8);
-                $minute = rand(1, 59);
-                $checkInTime = Carbon::create(null, null, null, $hour, $minute, 0);
+                $status       = 'terlambat';
+                $hour         = rand(7, 9);
+                $minute       = rand(1, 59);
+                $checkInTime  = Carbon::create(null, null, null, $hour, $minute, 0);
                 $checkOutTime = Carbon::create(null, null, null, 16 + rand(0, 1), rand(0, 59), 0);
-                // Calculate late minutes
+
+                // Calculate late minutes (GUARANTEED POSITIVE)
                 $expectedTime = Carbon::create(null, null, null, 7, 0, 0);
-                $lateMinutes = $checkInTime->diffInMinutes($expectedTime);
+                $lateMinutes  = (int) abs($expectedTime->diffInMinutes($checkInTime, false));
             }
 
             Presence::create([
-                'user_id' => $teacher->id,
-                'presence_date' => $date,
-                'check_in_time' => $checkInTime,
-                'check_out_time' => $checkOutTime,
-                'check_in_latitude' => -6.2088 + (rand(-100, 100) / 10000), // Jakarta area
-                'check_in_longitude' => 106.8456 + (rand(-100, 100) / 10000),
-                'check_out_latitude' => -6.2088 + (rand(-100, 100) / 10000),
-                'check_out_longitude' => 106.8456 + (rand(-100, 100) / 10000),
-                'status' => $status,
-                'late_minutes' => $lateMinutes,
-                'notes' => null,
+                'user_id'              => $teacher->id,
+                'presence_date'        => $date,
+                'check_in_time'        => $checkInTime,
+                'check_out_time'       => $checkOutTime,
+                'check_in_latitude'    => -6.2088 + (rand(-100, 100) / 10000),
+                'check_in_longitude'   => 106.8456 + (rand(-100, 100) / 10000),
+                'check_out_latitude'   => -6.2088 + (rand(-100, 100) / 10000),
+                'check_out_longitude'  => 106.8456 + (rand(-100, 100) / 10000),
+                'status'               => $status,
+                'late_minutes'         => $lateMinutes,
+                'notes'                => null,
             ]);
         }
     }
 
-    /**
-     * Create salary record for the month
-     */
     private function createSalary(User $teacher): void
     {
-        $now = now();
-        $month = $now->month;
-        $year = $now->year;
-
-        // Get attendance data
-        $presences = Presence::where('user_id', $teacher->id)
-            ->whereYear('presence_date', $year)
-            ->whereMonth('presence_date', $month)
-            ->get();
-
-        $presentDays = $presences->whereIn('status', ['hadir', 'terlambat'])->count();
-        $absentDays = $presences->where('status', 'tidak_hadir')->count();
-        $totalLateMinutes = $presences->sum('late_minutes');
-
-        $baseSalary = 3000000; // Rp 3 juta base salary
-
-        // Calculate deductions
-        $deductionPerAbsentDay = 100000; // Rp 100k per hari absen
-        $deductionForAbsence = $absentDays * $deductionPerAbsentDay;
-
-        $deductionPerLateMinute = 1000; // Rp 1k per menit terlambat
-        $deductionForLate = $totalLateMinutes * $deductionPerLateMinute;
-
-        $totalSalary = $baseSalary - $deductionForAbsence - $deductionForLate;
-
-        Salary::create([
-            'user_id' => $teacher->id,
-            'year' => $year,
-            'month' => $month,
-            'base_salary' => $baseSalary,
-            'total_present_days' => $presentDays,
-            'total_absent_days' => $absentDays,
-            'total_late_minutes' => $totalLateMinutes,
-            'deduction_for_absence' => $deductionForAbsence,
-            'deduction_for_late' => $deductionForLate,
-            'total_salary' => max($totalSalary, 0), // Ensure not negative
-            'status' => 'draft',
-            'notes' => 'Seeder generated salary data',
-        ]);
+        app(\App\Services\PayrollService::class)
+            ->calculate(
+                $teacher,
+                now()->month,
+                now()->year
+            );
     }
 }
-
