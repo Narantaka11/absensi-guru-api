@@ -70,7 +70,7 @@ class PayrollService
 
         $totalLateMinutes = max(
             0,
-            (int) $presences->sum('late_minutes')
+            (int) abs($presences->sum('late_minutes'))
         );
 
         // Potongan
