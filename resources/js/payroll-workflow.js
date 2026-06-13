@@ -315,155 +315,235 @@ async function viewDetail(salaryId) {
         `;
     }
 }
-
 function openDetailModal() {
-    // Hapus modal lama jika ada
-    const existing = document.getElementById('payroll-detail-modal');
+
+    const existing =
+        document.getElementById('payroll-detail-modal');
+
     if (existing) existing.remove();
 
     const modal = document.createElement('div');
+
     modal.id = 'payroll-detail-modal';
-    modal.style.cssText =
-        'position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;';
 
-    // Overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-50';
-    overlay.onclick = () => modal.remove();
-    modal.appendChild(overlay);
+    modal.innerHTML = `
+        <div
+            class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+            style="
+                background:rgba(0,0,0,.75);
+                z-index:9999;
+            "
+        >
+            <div
+                class="panel shadow-lg"
+                style="
+                    width:90%;
+                    max-width:800px;
+                    max-height:85vh;
+                    display:flex;
+                    flex-direction:column;
+                "
+            >
+                <div
+                    class="panel-header border-bottom d-flex justify-content-between align-items-center"
+                >
+                    <div>
+                        <h3 class="fw-bold mb-1">
+                            Detail Slip Gaji
+                        </h3>
 
-    // Card
-    const card = document.createElement('div');
-    card.className =
-        'relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6 z-10';
-    card.style.cssText = 'max-height:90vh;overflow-y:auto;';
+                        <div class="text-secondary">
+                            Informasi penggajian guru
+                        </div>
+                    </div>
 
-    // Header
-    const header = document.createElement('div');
-    header.className = 'flex items-center justify-between mb-5';
-    header.innerHTML = `
-        <h3 class="text-lg font-bold text-gray-900">Detail Slip Gaji</h3>
-        <button class="text-gray-400 hover:text-gray-600 text-xl leading-none" onclick="document.getElementById('payroll-detail-modal').remove()">&times;</button>
-    `;
-    card.appendChild(header);
+                    <button
+                        type="button"
+                        class="btn btn-outline-light"
+                        onclick="closePayrollModal()"
+                    >
+                        ✕
+                    </button>
+                </div>
 
-    // Body (loading placeholder)
-    const body = document.createElement('div');
-    body.className = 'modal-body';
-    body.innerHTML = `
-        <div class="text-center py-8 text-gray-400">
-            <p>Memuat data...</p>
+                    <div class="panel-body modal-body"
+                    style="
+                        overflow-y:default;
+                        overflow-x:hidden;
+                    ">
+                    <div class="text-center py-5">
+                        Memuat data...
+                    </div>
+                </div>
+            </div>
         </div>
     `;
-    card.appendChild(body);
 
-    modal.appendChild(card);
     document.body.appendChild(modal);
+
+    document.body.style.overflow = 'hidden';
 
     return modal;
 }
-
 function renderDetailModal(modal, salary) {
     const body = modal.querySelector('.modal-body');
-
     const teacher = salary.teacher || {};
-
-    // Format rupiah helper
-    const rp = (val) => {
-        return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
-    };
-
+    const rp = (val) =>
+        'Rp ' + Number(val || 0).toLocaleString('id-ID');
+    let statusClass = 'bg-secondary';
+    if (salary.status === 'approved')
+        statusClass = 'bg-primary';
+    if (salary.status === 'paid')
+        statusClass = 'bg-success';
     body.innerHTML = `
-        <div class="space-y-4 text-sm">
-            <!-- Info Guru -->
-            <div class="bg-gray-50 rounded-xl p-4">
-                <p class="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wider">Informasi Guru</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><span class="text-gray-500">Nama</span></div>
-                    <div class="font-semibold text-gray-900">${teacher.name || '-'}</div>
-                    <div><span class="text-gray-500">NIP</span></div>
-                    <div class="font-semibold text-gray-900">${teacher.nip || '-'}</div>
-                    <div><span class="text-gray-500">Email</span></div>
-                    <div class="font-semibold text-gray-900 text-xs">${teacher.email || '-'}</div>
-                    <div><span class="text-gray-500">Mata Pelajaran</span></div>
-                    <div class="font-semibold text-gray-900">${teacher.subject || '-'}</div>
+        <div class="row g-3">
+        <div class="col-12">
+            <div class="panel">
+                <div class="panel-header d-flex justify-content-between align-items-center">
+                    <span>Informasi Payroll</span>
+                    <span class="badge ${statusClass}">
+                        ${salary.status_label}
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm text-white mb-0">
+                                <tr>
+                                    <td width="120">Nama</td>
+                                    <td>${teacher.name ?? '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>NIP</td>
+                                    <td>${teacher.nip ?? '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email</td>
+                                    <td>${teacher.email ?? '-'}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm text-white mb-0">
+                                <tr>
+                                    <td width="120">Mapel</td>
+                                    <td>${teacher.subject ?? '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>Periode</td>
+                                    <td>${salary.month_name}</td>
+                                </tr>
+                                <tr>
+                                    <td>Status</td>
+                                    <td>
+                                        <span class="badge ${statusClass}">
+                                            ${salary.status_label}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Periode & Status -->
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-gray-500">Periode</span>
-                    <span class="ml-2 font-semibold text-gray-900">${salary.month_name}</span>
-                </div>
-                <span class="px-3 py-1 rounded-lg text-white text-xs font-semibold
-                    ${salary.status === 'draft' ? 'bg-gray-600' : ''}
-                    ${salary.status === 'approved' ? 'bg-blue-600' : ''}
-                    ${salary.status === 'paid' ? 'bg-green-600' : ''}">
-                    ${salary.status_label}
-                </span>
-            </div>
-
-            <hr class="border-gray-200">
-
-            <!-- Rincian Gaji -->
-            <div class="space-y-2">
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Gaji Pokok</span>
-                    <span class="font-semibold text-gray-900">${rp(salary.base_salary)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Total Hari Hadir</span>
-                    <span class="font-semibold text-green-600">${salary.total_present_days} hari</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Total Alfa (Tidak Hadir)</span>
-                    <span class="font-semibold text-red-600">${salary.total_absent_days} hari</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Total Menit Terlambat</span>
-                    <span class="font-semibold text-red-600">${salary.total_late_minutes} menit</span>
-                </div>
-            </div>
-
-            <hr class="border-gray-200">
-
-            <!-- Potongan -->
-            <div class="space-y-2">
-                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">Potongan</p>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Potongan Alfa</span>
-                    <span class="font-semibold text-red-600">-${rp(salary.deduction_for_absence)}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Potongan Keterlambatan</span>
-                    <span class="font-semibold text-red-600">-${rp(salary.deduction_for_late)}</span>
-                </div>
-                <div class="flex justify-between border-t border-gray-200 pt-2">
-                    <span class="font-semibold text-gray-700">Total Potongan</span>
-                    <span class="font-semibold text-red-600">-${rp(salary.total_deduction)}</span>
+        </div>
+            <div class="col-lg-12">
+                <div class="panel">
+                    <div class="panel-header">
+                        Ringkasan Kehadiran
+                    </div>
+                    <div class="panel-body">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <h4 class="text-success fw-bold mb-1">
+                                    ${salary.total_present_days}
+                                </h4>
+                                <div class="small text-secondary">
+                                    Hari Hadir
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="text-warning fw-bold mb-1">
+                                    ${salary.total_late_minutes}
+                                </h4>
+                                <div class="small text-secondary">
+                                    Menit Terlambat
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h4 class="text-danger fw-bold mb-1">
+                                    ${salary.total_absent_days}
+                                </h4>
+                                <div class="small text-secondary">
+                                    Tidak Hadir
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <hr class="border-gray-200">
-
-            <!-- Total Akhir -->
-            <div class="bg-green-50 rounded-xl p-4 flex justify-between items-center">
-                <span class="font-semibold text-green-800">Total Gaji Akhir</span>
-                <span class="text-xl font-bold text-green-700">${rp(salary.total_salary)}</span>
+            <div class="col-lg-12">
+                <div class="panel">
+                    <div class="panel-header">
+                        Rincian Penggajian
+                    </div>
+                    <div class="panel-body py-3 px-4">
+                        <table class="table table-dark table-sm align-middle">
+                            <tbody>
+                                <tr>
+                                    <td>Gaji Pokok</td>
+                                    <td class="text-end text-success fw-bold">
+                                        ${rp(salary.base_salary)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Potongan Alfa</td>
+                                    <td class="text-end text-danger fw-bold">
+                                        -${rp(salary.deduction_for_absence)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Potongan Keterlambatan</td>
+                                    <td class="text-end text-danger fw-bold">
+                                        -${rp(salary.deduction_for_late)}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Total Potongan</td>
+                                    <td class="text-end text-warning fw-bold">
+                                        -${rp(salary.total_deduction)}
+                                    </td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td class="fw-bold">
+                                        Total Gaji Akhir
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        ${rp(salary.total_salary)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-            ${salary.notes ? `
-            <div class="text-xs text-gray-400 italic">
-                Catatan: ${salary.notes}
-            </div>
-            ` : ''}
         </div>
     `;
 }
+function closePayrollModal() {
 
+    const modal =
+        document.getElementById('payroll-detail-modal');
+
+    if (modal) {
+        modal.remove();
+    }
+
+    document.body.style.overflow = 'auto';
+}
 // Expose ke global scope (Blade onclick)
 window.approvePayroll = approvePayroll;
 window.markAsPaid = markAsPaid;
 window.revertToDraft = revertToDraft;
 window.viewDetail = viewDetail;
+window.closePayrollModal = closePayrollModal;

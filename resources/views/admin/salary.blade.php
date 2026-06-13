@@ -1,223 +1,283 @@
 <x-admin-layout>
 
-    <div class="space-y-6">
+    <div class="page-heading mb-4">
 
-        <!-- Header -->
-        <div class="flex justify-between items-center">
+        <div class="page-heading-copy">
+
+            <span class="page-icon">
+                <i class="bi bi-cash-stack"></i>
+            </span>
+
             <div>
-                <h2 class="text-2xl font-bold text-gray-900">
+                <p class="eyebrow mb-1">
+                    Penggajian
+                </p>
+
+                <h1 class="h3 mb-1">
                     Data Penggajian Guru
-                </h2>
-                <p class="text-gray-500 text-sm mt-1">
+                </h1>
+
+                <p class="text-muted mb-0">
                     Rekap penggajian guru berdasarkan absensi
                 </p>
             </div>
+
         </div>
 
-        <!-- Filter -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <form action="{{ route('admin.salary') }}" method="GET"
-                  class="flex flex-wrap items-end gap-4">
+    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+    <section class="panel mb-4">
+
+        <div class="panel-header">
+            <h2 class="h5 mb-0">
+                Filter Periode
+            </h2>
+        </div>
+
+        <div class="p-4">
+
+            <form action="{{ route('admin.salary') }}" method="GET" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
                         Bulan
                     </label>
 
-                    <select name="month"
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="month" class="form-select">
 
-                        @foreach($months as $num => $name)
-                            <option value="{{ $num }}"
-                                {{ $num == $currentMonth ? 'selected' : '' }}>
+                        @foreach ($months as $num => $name)
+                            <option value="{{ $num }}" {{ $num == $currentMonth ? 'selected' : '' }}>
+
                                 {{ $name }}
+
                             </option>
                         @endforeach
 
                     </select>
+
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="col-md-4">
+
+                    <label class="form-label">
                         Tahun
                     </label>
 
-                    <select name="year"
-                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <select name="year" class="form-select">
 
-                        @for($y = now()->year - 2; $y <= now()->year + 2; $y++)
-                            <option value="{{ $y }}"
-                                {{ $y == $currentYear ? 'selected' : '' }}>
+                        @for ($y = now()->year - 2; $y <= now()->year + 2; $y++)
+                            <option value="{{ $y }}" {{ $y == $currentYear ? 'selected' : '' }}>
+
                                 {{ $y }}
+
                             </option>
                         @endfor
 
                     </select>
+
                 </div>
 
-                <button type="submit"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Filter
-                </button>
+                <div class="col-md-4">
+
+                    <button type="submit" class="btn btn-primary">
+
+                        Filter
+
+                    </button>
+
+                </div>
 
             </form>
+
         </div>
 
-        <!-- Table -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    </section>
 
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
+    <section class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2 class="h5 mb-1">
                     Daftar Gaji Guru
-                </h3>
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Data penggajian berdasarkan periode yang dipilih.
+                </p>
+
             </div>
 
-            <div class="overflow-x-auto">
+        </div>
 
-                <table class="w-full text-sm">
+        <div class="table-responsive">
 
-                    <thead class="bg-gray-100">
+            <table class="table align-middle mb-0">
+
+                <thead>
+
                     <tr>
-                        <th class="px-6 py-4 text-left font-semibold text-gray-700">
-                            Nama Guru
-                        </th>
 
-                        <th class="px-6 py-4 text-right font-semibold text-gray-700">
+                        <th>Nama Guru</th>
+
+                        <th class="text-end">
                             Gaji Pokok
                         </th>
 
-                        <th class="px-6 py-4 text-center font-semibold text-gray-700">
-                            Hari Hadir
+                        <th class="text-center">
+                            Hadir
                         </th>
 
-                        <th class="px-6 py-4 text-center font-semibold text-gray-700">
-                            Hari Absen
+                        <th class="text-center">
+                            Absen
                         </th>
 
-                        <th class="px-6 py-4 text-right font-semibold text-gray-700">
+                        <th class="text-end">
                             Potongan Absensi
                         </th>
 
-                        <th class="px-6 py-4 text-right font-semibold text-gray-700">
+                        <th class="text-end">
                             Potongan Terlambat
                         </th>
 
-                        <th class="px-6 py-4 text-right font-semibold text-gray-700">
-                            Gaji Total
+                        <th class="text-end">
+                            Total Gaji
                         </th>
 
-                        <th class="px-6 py-4 text-center font-semibold text-gray-700">
+                        <th class="text-center">
                             Status
                         </th>
 
-                        <th class="px-6 py-4 text-center font-semibold text-gray-700">
+                        <th class="text-center">
                             Aksi
                         </th>
-                    </tr>
-                    </thead>
 
-                    <tbody class="divide-y divide-gray-200">
+                    </tr>
+
+                </thead>
+
+                <tbody>
 
                     @forelse($salaries as $salary)
+                        <tr>
 
-                        <tr class="hover:bg-gray-50 transition">
+                            <td>
 
-                            <td class="px-6 py-4 font-medium text-gray-900">
-                                {{ $salary->user->name }}
+                                <div class="fw-semibold">
+                                    {{ $salary->user->name }}
+                                </div>
+
                             </td>
 
-                            <td class="px-6 py-4 text-right text-gray-700">
+                            <td class="text-end">
+
                                 Rp {{ number_format($salary->base_salary, 0, ',', '.') }}
+
                             </td>
 
-                            <td class="px-6 py-4 text-center">
-                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-green-100 text-green-700 font-medium">
+                            <td class="text-center">
+
+                                <span class="badge text-bg-success">
+
                                     {{ $salary->total_present_days }}
+
                                 </span>
+
                             </td>
 
-                            <td class="px-6 py-4 text-center">
-                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-red-100 text-red-700 font-medium">
+                            <td class="text-center">
+
+                                <span class="badge text-bg-danger">
+
                                     {{ $salary->total_absent_days }}
+
                                 </span>
+
                             </td>
 
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-semibold text-red-600">
-                                    -Rp {{ number_format($salary->deduction_for_absence, 0, ',', '.') }}
-                                </span>
+                            <td class="text-end text-danger fw-semibold">
+
+                                -Rp {{ number_format($salary->deduction_for_absence, 0, ',', '.') }}
+
                             </td>
 
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-semibold text-red-600">
-                                    -Rp {{ number_format($salary->deduction_for_late, 0, ',', '.') }}
-                                </span>
+                            <td class="text-end text-danger fw-semibold">
+
+                                -Rp {{ number_format($salary->deduction_for_late, 0, ',', '.') }}
+
                             </td>
 
-                            <td class="px-6 py-4 text-right">
-                                <span class="text-xl font-bold text-green-600">
+                            <td class="text-end">
+
+                                <span class="fw-bold text-success">
+
                                     Rp {{ number_format($salary->total_salary, 0, ',', '.') }}
+
                                 </span>
+
                             </td>
 
-                            <td class="px-6 py-4 text-center">
+                            <td class="text-center">
 
-                                @if($salary->status == 'draft')
-                                    <span id="status-badge-{{ $salary->id }}"
-                                          class="px-3 py-1 rounded-lg bg-gray-600 text-white text-xs font-semibold">
+                                @if ($salary->status == 'draft')
+                                    <span id="status-badge-{{ $salary->id }}" class="badge text-bg-secondary">
                                         Draft
                                     </span>
-
                                 @elseif($salary->status == 'approved')
-                                    <span id="status-badge-{{ $salary->id }}"
-                                          class="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs font-semibold">
+                                    <span id="status-badge-{{ $salary->id }}" class="badge text-bg-primary">
                                         Approved
                                     </span>
-
                                 @else
-                                    <span id="status-badge-{{ $salary->id }}"
-                                          class="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold">
+                                    <span id="status-badge-{{ $salary->id }}" class="badge text-bg-success">
                                         Paid
                                     </span>
                                 @endif
 
                             </td>
 
-                            <td class="px-6 py-4 text-center">
-                                <div id="actions-{{ $salary->id }}" class="flex items-center justify-center gap-2">
+                            <td class="text-center">
 
-                                    {{-- Always show Detail --}}
+                                <div id="actions-{{ $salary->id }}"
+                                    class="d-flex justify-content-center gap-2 flex-wrap">
+
                                     <button onclick="viewDetail({{ $salary->id }})"
-                                            class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition">
+                                        class="btn btn-sm btn-outline-secondary">
+
                                         Detail
+
                                     </button>
 
-                                    {{-- draft → Approve --}}
-                                    @if($salary->status == 'draft')
+                                    @if ($salary->status == 'draft')
                                         <button id="approve-btn-{{ $salary->id }}"
-                                                onclick="approvePayroll({{ $salary->id }})"
-                                                class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                            onclick="approvePayroll({{ $salary->id }})"
+                                            class="btn btn-sm btn-primary">
+
                                             Approve
+
                                         </button>
                                     @endif
 
-                                    {{-- approved → Mark as Paid + Revert --}}
-                                    @if($salary->status == 'approved')
+                                    @if ($salary->status == 'approved')
                                         <button id="paid-btn-{{ $salary->id }}"
-                                                onclick="markAsPaid({{ $salary->id }})"
-                                                class="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                            Mark as Paid
+                                            onclick="markAsPaid({{ $salary->id }})" class="btn btn-sm btn-success">
+
+                                            Mark Paid
+
                                         </button>
+
                                         <button id="revert-btn-{{ $salary->id }}"
-                                                onclick="revertToDraft({{ $salary->id }})"
-                                                class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                            onclick="revertToDraft({{ $salary->id }})"
+                                            class="btn btn-sm btn-warning">
+
                                             Revert
+
                                         </button>
                                     @endif
-
-                                    {{-- paid → readonly (Detail only, sudah di-render di atas) --}}
 
                                 </div>
+
                             </td>
 
                         </tr>
@@ -225,74 +285,101 @@
                     @empty
 
                         <tr>
-                            <td colspan="8"
-                                class="px-6 py-8 text-center text-gray-500">
-                                Tidak ada data penggajian
-                            </td>
-                        </tr>
 
+                            <td colspan="9" class="text-center py-4 text-muted">
+
+                                Tidak ada data penggajian
+
+                            </td>
+
+                        </tr>
                     @endforelse
 
-                    </tbody>
+                </tbody>
 
-                </table>
-
-            </div>
-
-            <!-- Pagination -->
-            <div class="p-6 border-t border-gray-200">
-                {{ $salaries->links() }}
-            </div>
+            </table>
 
         </div>
 
-        <!-- Summary -->
-        @if($salaries->count() > 0)
+        <div class="p-3 border-top">
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            {{ $salaries->links() }}
 
-                <h3 class="text-lg font-semibold text-gray-900 mb-6">
-                    Ringkasan Penggajian
-                </h3>
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    </section>
 
-                    <div>
-                        <p class="text-sm text-gray-500 mb-2">
+    @if ($salaries->count() > 0)
+        <div class="row g-4 mt-1">
+
+            <div class="col-md-4">
+
+                <div class="metric-card metric-primary">
+
+                    <div class="metric-copy">
+
+                        <span class="metric-label">
                             Total Gaji Pokok
-                        </p>
+                        </span>
 
-                        <p class="text-3xl font-bold text-gray-900">
+                        <strong class="metric-value">
+
                             Rp {{ number_format($salaries->sum('base_salary'), 0, ',', '.') }}
-                        </p>
-                    </div>
 
-                    <div>
-                        <p class="text-sm text-gray-500 mb-2">
-                            Total Potongan
-                        </p>
+                        </strong>
 
-                        <p class="text-3xl font-bold text-red-600">
-                            -Rp {{ number_format($salaries->sum('deduction_for_absence') + $salaries->sum('deduction_for_late'), 0, ',', '.') }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-sm text-gray-500 mb-2">
-                            Total Gaji Bersih
-                        </p>
-
-                        <p class="text-3xl font-bold text-green-600">
-                            Rp {{ number_format($salaries->sum('total_salary'), 0, ',', '.') }}
-                        </p>
                     </div>
 
                 </div>
 
             </div>
 
-        @endif
+            <div class="col-md-4">
 
-    </div>
+                <div class="metric-card metric-danger">
+
+                    <div class="metric-copy">
+
+                        <span class="metric-label">
+                            Total Potongan
+                        </span>
+
+                        <strong class="metric-value">
+
+                            Rp
+                            {{ number_format($salaries->sum('deduction_for_absence') + $salaries->sum('deduction_for_late'), 0, ',', '.') }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4">
+
+                <div class="metric-card metric-success">
+
+                    <div class="metric-copy">
+
+                        <span class="metric-label">
+                            Total Gaji Bersih
+                        </span>
+
+                        <strong class="metric-value">
+
+                            Rp {{ number_format($salaries->sum('total_salary'), 0, ',', '.') }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endif
 
 </x-admin-layout>

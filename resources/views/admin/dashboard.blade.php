@@ -1,298 +1,219 @@
 <x-admin-layout>
-    <div class="space-y-6">
 
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">
-                    Dashboard Absensi Guru
-                </h1>
-                <p class="text-gray-500 text-sm mt-1">
-                    Monitoring kehadiran dan performa guru
-                </p>
-            </div>
-        </div>
+    <div class="page-heading mb-4">
+        <h1 class="mb-2">Dashboard Absensi Guru</h1>
+        <p class="text-muted mb-0">
+            Monitoring kehadiran dan performa guru
+        </p>
+    </div>
 
-        <!-- Filter -->
-        <div class="bg-white shadow-sm rounded-2xl border border-gray-100">
-            <div class="p-6">
-                <form action="{{ route('admin.dashboard') }}" method="GET"
-                    class="flex flex-wrap gap-4 items-end">
+    {{-- FILTER --}}
+    <div class="card mb-4">
+        <div class="card-body">
+            <form action="{{ route('admin.dashboard') }}" method="GET" class="row g-3 align-items-end">
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-2">
-                            Bulan
-                        </label>
+                <div class="col-md-3">
+                    <label class="form-label">Bulan</label>
+                    <select name="month" class="form-select">
+                        @foreach ($months as $num => $name)
+                            <option value="{{ $num }}" {{ $num == $currentMonth ? 'selected' : '' }}>
+                                {{ $name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        <select name="month"
-                            class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            @foreach($months as $num => $name)
-                                <option value="{{ $num }}" {{ $num == $currentMonth ? 'selected' : '' }}>
-                                    {{ $name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tahun</label>
+                    <select name="year" class="form-select">
+                        @for ($y = now()->year - 2; $y <= now()->year + 2; $y++)
+                            <option value="{{ $y }}" {{ $y == $currentYear ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endfor
+                    </select>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-2">
-                            Tahun
-                        </label>
-
-                        <select name="year"
-                            class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            @for($y = now()->year - 2; $y <= now()->year + 2; $y++)
-                                <option value="{{ $y }}" {{ $y == $currentYear ? 'selected' : '' }}>
-                                    {{ $y }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-
-                    <button type="submit"
-                        class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100">
                         Filter
                     </button>
-                </form>
-            </div>
+                </div>
+
+            </form>
         </div>
+    </div>
 
-        <!-- Insight Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+    {{-- STATISTIK --}}
+    <div class="row g-4 mb-4">
 
-            <!-- Total Guru -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Total Guru
-                        </p>
-
-                        <h2 class="text-3xl font-bold text-gray-800 mt-2">
-                            {{ count($attendanceSummary) }}
-                        </h2>
-
-                        <p class="text-sm text-gray-400 mt-1">
-                            Guru aktif
-                        </p>
-                    </div>
-
-                    <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-                        👨‍🏫
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rata-rata -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Rata-rata Kehadiran
-                        </p>
-
-                        <h2 class="text-3xl font-bold text-blue-600 mt-2">
-                            {{ $statistics['average_attendance'] }}%
-                        </h2>
-
-                        <p class="text-sm text-gray-400 mt-1">
-                            Kehadiran bulanan
-                        </p>
-                    </div>
-
-                    <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-                        📊
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hadir -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Total Hadir
-                        </p>
-
-                        <h2 class="text-3xl font-bold text-green-600 mt-2">
-                            {{ $statistics['present'] }}
-                        </h2>
-
-                        <p class="text-sm text-gray-400 mt-1">
-                            Kehadiran tercatat
-                        </p>
-                    </div>
-
-                    <div class="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center">
-                        ✅
-                    </div>
-                </div>
-            </div>
-
-            <!-- Terlambat -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">
-                            Total Terlambat
-                        </p>
-
-                        <h2 class="text-3xl font-bold text-yellow-500 mt-2">
-                            {{ $statistics['late'] }}
-                        </h2>
-
-                        <p class="text-sm text-gray-400 mt-1">
-                            Keterlambatan guru
-                        </p>
-                    </div>
-
-                    <div class="w-14 h-14 rounded-2xl bg-yellow-100 flex items-center justify-center">
-                        ⏰
-                    </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <small class="text-muted">Total Guru</small>
+                    <h2 class="fw-bold mt-2">
+                        {{ count($attendanceSummary) }}
+                    </h2>
+                    <p class="text-muted mb-0">Guru Aktif</p>
                 </div>
             </div>
         </div>
 
-        <!-- Rekap Guru -->
-        <div class="bg-white shadow-sm rounded-2xl border border-gray-100">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-gray-800">
-                    Rekap Absensi Guru
-                </h3>
-
-                <p class="text-sm text-gray-500 mt-1">
-                    Statistik kehadiran guru bulan ini
-                </p>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <small class="text-muted">Rata-rata Kehadiran</small>
+                    <h2 class="fw-bold text-primary mt-2">
+                        {{ $statistics['average_attendance'] }}%
+                    </h2>
+                    <p class="text-muted mb-0">Kehadiran Bulanan</p>
+                </div>
             </div>
+        </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left font-semibold text-gray-600">
-                                Nama Guru
-                            </th>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <small class="text-muted">Total Hadir</small>
+                    <h2 class="fw-bold text-success mt-2">
+                        {{ $statistics['present'] }}
+                    </h2>
+                    <p class="text-muted mb-0">Kehadiran Tercatat</p>
+                </div>
+            </div>
+        </div>
 
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Hadir
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Terlambat
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Tidak Hadir
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Sakit
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Izin
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Persentase
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Status
-                            </th>
-
-                            <th class="px-4 py-4 text-center font-semibold text-gray-600">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($attendanceSummary as $record)
-
-                            @php
-                                $percentage = $record['percentage'];
-
-                                if($percentage >= 90){
-                                    $status = 'Sangat Baik';
-                                    $badge = 'bg-green-100 text-green-700';
-                                } elseif($percentage >= 75){
-                                    $status = 'Baik';
-                                    $badge = 'bg-blue-100 text-blue-700';
-                                } else {
-                                    $status = 'Perlu Evaluasi';
-                                    $badge = 'bg-red-100 text-red-700';
-                                }
-                            @endphp
-
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4">
-                                    <div>
-                                        <div class="font-semibold text-gray-800">
-                                            {{ $record['teacher']->name }}
-                                        </div>
-
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            {{ $record['teacher']->email }}
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-lg bg-green-100 text-green-700 font-medium">
-                                        {{ $record['present'] }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-700 font-medium">
-                                        {{ $record['late'] }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-lg bg-red-100 text-red-700 font-medium">
-                                        {{ $record['absent'] }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    {{ $record['sick'] }}
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    {{ $record['permission'] }}
-                                </td>
-
-                                <td class="px-4 py-4 text-center font-semibold text-gray-700">
-                                    {{ $record['percentage'] }}%
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-3 py-1 rounded-xl text-xs font-semibold {{ $badge }}">
-                                        {{ $status }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-4 text-center">
-                                    <a href="{{ route('teacher.detail', ['user' => $record['teacher']->id, 'month' => $currentMonth, 'year' => $currentYear]) }}"
-                                        class="text-blue-600 hover:text-blue-800 font-medium">
-                                        Detail
-                                    </a>
-                                </td>
-                            </tr>
-
-                        @empty
-                            <tr>
-                                <td colspan="9" class="px-6 py-6 text-center text-gray-500">
-                                    Tidak ada data guru
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <small class="text-muted">Total Terlambat</small>
+                    <h2 class="fw-bold text-warning mt-2">
+                        {{ $statistics['late'] }}
+                    </h2>
+                    <p class="text-muted mb-0">Keterlambatan Guru</p>
+                </div>
             </div>
         </div>
 
     </div>
+
+    {{-- TABEL --}}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Rekap Absensi Guru</h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Nama Guru</th>
+                            <th>Hadir</th>
+                            <th>Terlambat</th>
+                            <th>Tidak Hadir</th>
+                            <th>Sakit</th>
+                            <th>Izin</th>
+                            <th>Persentase</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @forelse($attendanceSummary as $record)
+                            @php
+                                $percentage = $record['percentage'];
+
+                                if ($percentage >= 90) {
+                                    $badge = 'success';
+                                    $status = 'Sangat Baik';
+                                } elseif ($percentage >= 75) {
+                                    $badge = 'primary';
+                                    $status = 'Baik';
+                                } else {
+                                    $badge = 'danger';
+                                    $status = 'Perlu Evaluasi';
+                                }
+                            @endphp
+
+                            <tr>
+
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ $record['teacher']->name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ $record['teacher']->email }}
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        {{ $record['present'] }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        {{ $record['late'] }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-danger">
+                                        {{ $record['absent'] }}
+                                    </span>
+                                </td>
+
+                                <td>{{ $record['sick'] }}</td>
+
+                                <td>{{ $record['permission'] }}</td>
+
+                                <td>
+                                    {{ $record['percentage'] }}%
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-{{ $badge }}">
+                                        {{ $status }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <a href="{{ route('teacher.detail', [
+                                        'user' => $record['teacher']->id,
+                                        'month' => $currentMonth,
+                                        'year' => $currentYear,
+                                    ]) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        Detail
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    Tidak ada data guru
+                                </td>
+                            </tr>
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
 </x-admin-layout>

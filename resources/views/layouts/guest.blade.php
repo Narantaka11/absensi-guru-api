@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Guru</title>
+    <link rel="stylesheet" href="{{ asset('vendor/adminhmd/assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/adminhmd/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/adminhmd/assets/css/style.css') }}">
+</head>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+<body class="auth-body">
+    <button class="icon-button theme-toggle auth-theme-toggle" type="button" data-theme-toggle
+        aria-label="Switch color theme">
+        <i class="bi bi-moon-stars" data-theme-icon></i>
+    </button>
+    <main class="auth-page">
+        <section class="auth-card">
+            <div class="text-center mb-4">
+                <img src="{{ asset('images/logo-sekolah.png') }}" alt="Logo Sekolah" style="max-width:220px">
             </div>
+            {{ $slot }}
+        </section>
+    </main>
+    <script src="{{ asset('vendor/adminhmd/assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('vendor/adminhmd/assets/js/main.js') }}"></script>
+</body>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
-            </div>
-        </div>
-    </body>
 </html>

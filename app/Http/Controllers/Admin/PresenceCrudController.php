@@ -14,10 +14,10 @@ class PresenceCrudController extends Controller
 {
     // Status options yang tersedia
     private const STATUSES = [
-        'hadir'       => 'Hadir (On Time)',
-        'terlambat'   => 'Terlambat',
-        'sakit'       => 'Sakit',
-        'izin'        => 'Izin',
+        'hadir' => 'Hadir (On Time)',
+        'terlambat' => 'Terlambat',
+        'sakit' => 'Sakit',
+        'izin' => 'Izin',
         'tidak_hadir' => 'Alpa (Tidak Hadir)',
     ];
 
@@ -83,27 +83,27 @@ class PresenceCrudController extends Controller
         }
 
         $stats = [
-            'hadir'       => (clone $statsQuery)->where('status', 'hadir')->count(),
-            'terlambat'   => (clone $statsQuery)->where('status', 'terlambat')->count(),
-            'sakit'       => (clone $statsQuery)->where('status', 'sakit')->count(),
-            'izin'        => (clone $statsQuery)->where('status', 'izin')->count(),
+            'hadir' => (clone $statsQuery)->where('status', 'hadir')->count(),
+            'terlambat' => (clone $statsQuery)->where('status', 'terlambat')->count(),
+            'sakit' => (clone $statsQuery)->where('status', 'sakit')->count(),
+            'izin' => (clone $statsQuery)->where('status', 'izin')->count(),
             'tidak_hadir' => (clone $statsQuery)->where('status', 'tidak_hadir')->count(),
-            'total'       => (clone $statsQuery)->count(),
+            'total' => (clone $statsQuery)->count(),
         ];
 
         return view('admin.presences.crud.index', [
             'presences' => $presences,
-            'teachers'  => $teachers,
-            'statuses'  => self::STATUSES,
-            'stats'     => $stats,
-            'filters'   => $request->only([
+            'teachers' => $teachers,
+            'statuses' => self::STATUSES,
+            'stats' => $stats,
+            'filters' => $request->only([
                 'user_id',
                 'status',
                 'month',
                 'year',
                 'date'
             ]),
-            'title'     => 'Kelola Data Absensi',
+            'title' => 'Kelola Data Absensi',
         ]);
     }
 
@@ -120,24 +120,24 @@ class PresenceCrudController extends Controller
         return view('admin.presences.crud.create', [
             'teachers' => $teachers,
             'statuses' => self::STATUSES,
-            'title'    => 'Tambah Absensi',
+            'title' => 'Tambah Absensi',
+            'presence' => null,
         ]);
     }
-
     /**
      * Simpan absensi manual admin.
      */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'user_id'        => ['required', 'exists:users,id'],
-            'presence_date'  => ['required', 'date'],
-            'status'         => ['required', 'in:' . implode(',', array_keys(self::STATUSES))],
+            'user_id' => ['required', 'exists:users,id'],
+            'presence_date' => ['required', 'date'],
+            'status' => ['required', 'in:' . implode(',', array_keys(self::STATUSES))],
 
-            'check_in_time'  => ['nullable', 'date_format:H:i'],
+            'check_in_time' => ['nullable', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i'],
 
-            'notes'          => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         Presence::create($validated);
@@ -156,7 +156,7 @@ class PresenceCrudController extends Controller
 
         return view('admin.presences.crud.show', [
             'presence' => $presence,
-            'title'    => 'Detail Absensi',
+            'title' => 'Detail Absensi',
         ]);
     }
 
@@ -174,7 +174,7 @@ class PresenceCrudController extends Controller
             'presence' => $presence,
             'teachers' => $teachers,
             'statuses' => self::STATUSES,
-            'title'    => 'Edit Absensi',
+            'title' => 'Edit Absensi',
         ]);
     }
 
@@ -184,14 +184,14 @@ class PresenceCrudController extends Controller
     public function update(Request $request, Presence $presence): RedirectResponse
     {
         $validated = $request->validate([
-            'user_id'        => ['required', 'exists:users,id'],
-            'presence_date'  => ['required', 'date'],
-            'status'         => ['required', 'in:' . implode(',', array_keys(self::STATUSES))],
+            'user_id' => ['required', 'exists:users,id'],
+            'presence_date' => ['required', 'date'],
+            'status' => ['required', 'in:' . implode(',', array_keys(self::STATUSES))],
 
-            'check_in_time'  => ['nullable', 'date_format:H:i'],
+            'check_in_time' => ['nullable', 'date_format:H:i'],
             'check_out_time' => ['nullable', 'date_format:H:i'],
 
-            'notes'          => ['nullable', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $presence->update($validated);

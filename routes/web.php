@@ -19,13 +19,6 @@ Route::get('/', function () {
         ? redirect()->route('admin.dashboard')
         : redirect()->route('dashboard');
 });
-
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
-
 // Admin Routes
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');

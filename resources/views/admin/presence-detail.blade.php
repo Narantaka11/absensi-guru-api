@@ -1,162 +1,330 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Detail Absensi {{ $presence->user->name }}
-            </h2>
-            <a href="{{ route('teacher.detail', ['user' => $presence->user_id, 'month' => $presence->presence_date->month, 'year' => $presence->presence_date->year]) }}" class="text-blue-600 hover:text-blue-900">
-                ← Kembali
-            </a>
-        </div>
+<x-admin-layout>
+    <x-slot name="title">
+        Detail Absensi {{ $presence->user->name }}
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <!-- Basic Info -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Dasar</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-gray-600 text-sm">Nama</p>
-                            <p class="text-gray-900 font-semibold">{{ $presence->user->name }}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 text-sm">Tanggal</p>
-                            <p class="text-gray-900 font-semibold">{{ $presence->presence_date->format('d M Y') }}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 text-sm">Status</p>
-                            <p class="text-gray-900 font-semibold">
-                                <span class="inline-block px-3 py-1 rounded text-white text-sm
-                                    @if($presence->status == 'hadir') bg-green-600
-                                    @elseif($presence->status == 'terlambat') bg-yellow-600
-                                    @elseif($presence->status == 'tidak_hadir') bg-red-600
-                                    @elseif($presence->status == 'sakit') bg-blue-600
-                                    @else bg-gray-600
-                                    @endif
-                                ">
-                                    {{ ucfirst(str_replace('_', ' ', $presence->status)) }}
-                                </span>
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 text-sm">Lokasi Valid (Radius Sekolah)</p>
-                            <p class="text-gray-900 font-semibold">
-                                @if($isWithinRadius)
-                                    <span class="text-green-600">✓ Valid</span>
-                                @else
-                                    <span class="text-red-600">✗ Tidak Valid</span>
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                </div>
+    <div class="page-heading mb-4">
+
+        <div class="page-heading-copy">
+
+            <span class="page-icon">
+                <i class="bi bi-card-checklist"></i>
+            </span>
+
+            <div>
+                <p class="eyebrow mb-1">Detail Absensi</p>
+
+                <h1 class="h3 mb-1">
+                    {{ $presence->user->name }}
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Informasi lengkap kehadiran guru.
+                </p>
             </div>
 
-            <!-- Check-in Information -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Check-In</h3>
+        </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-gray-600 text-sm mb-2">Jam Masuk</p>
-                            <p class="text-2xl font-bold text-gray-900">
-                                {{ $presence->check_in_time ? $presence->check_in_time->format('H:i:s') : '-' }}
-                            </p>
-                            @if($presence->late_minutes > 0)
-                                <p class="text-red-600 text-sm mt-1">Terlambat: {{ $presence->late_minutes }} menit</p>
-                            @endif
+        <div class="heading-actions">
+
+            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-sm">
+
+                <i class="bi bi-arrow-left"></i>
+                Kembali
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        {{-- INFORMASI DASAR --}}
+        <div class="col-12">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <h4 class="mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Informasi Dasar
+                    </h4>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-3">
+                            <small class="text-muted">
+                                Nama Guru
+                            </small>
+
+                            <h6 class="mb-0">
+                                {{ $presence->user->name }}
+                            </h6>
                         </div>
 
-                        <div>
-                            <p class="text-gray-600 text-sm mb-2">Lokasi (GPS)</p>
-                            @if($presence->check_in_latitude && $presence->check_in_longitude)
-                                <p class="text-gray-900 font-mono text-sm">
-                                    {{ $presence->check_in_latitude }}, {{ $presence->check_in_longitude }}
+                        <div class="col-md-3">
+                            <small class="text-muted">
+                                Tanggal
+                            </small>
+
+                            <h6 class="mb-0">
+                                {{ $presence->presence_date->format('d M Y') }}
+                            </h6>
+                        </div>
+
+                        <div class="col-md-3">
+                            <small class="text-muted">
+                                Status
+                            </small>
+
+                            <div class="mt-2">
+
+                                @if ($presence->status == 'hadir')
+                                    <span class="badge bg-success">
+                                        Hadir
+                                    </span>
+                                @elseif($presence->status == 'terlambat')
+                                    <span class="badge bg-warning text-dark">
+                                        Terlambat
+                                    </span>
+                                @elseif(in_array($presence->status, ['tidak_hadir', 'alpa']))
+                                    <span class="badge bg-danger">
+                                        Tidak Hadir
+                                    </span>
+                                @elseif($presence->status == 'sakit')
+                                    <span class="badge bg-info">
+                                        Sakit
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary">
+                                        Izin
+                                    </span>
+                                @endif
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <small class="text-muted">
+                                Radius Sekolah
+                            </small>
+
+                            <div class="mt-2">
+
+                                @if ($isWithinRadius)
+                                    <span class="badge bg-success">
+                                        Valid
+                                    </span>
+                                @else
+                                    <span class="badge bg-danger">
+                                        Tidak Valid
+                                    </span>
+                                @endif
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {{-- CHECK IN --}}
+        <div class="col-12">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <h4 class="mb-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Informasi Check-In
+                    </h4>
+
+                    <div class="row g-4">
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Jam Masuk
+                            </small>
+
+                            <h2 class="fw-bold mb-2">
+                                {{ $presence->check_in_time ? $presence->check_in_time->format('H:i:s') : '-' }}
+                            </h2>
+
+                            @if ($presence->late_minutes > 0)
+                                <div class="alert alert-warning py-2 mb-0">
+                                    Terlambat {{ $presence->late_minutes }} menit
+                                </div>
+                            @endif
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Lokasi GPS
+                            </small>
+
+                            @if ($presence->check_in_latitude && $presence->check_in_longitude)
+                                <p class="mb-2 font-monospace">
+
+                                    {{ $presence->check_in_latitude }},
+                                    {{ $presence->check_in_longitude }}
+
                                 </p>
+
                                 <a href="https://maps.google.com/?q={{ $presence->check_in_latitude }},{{ $presence->check_in_longitude }}"
-                                   target="_blank" class="text-blue-600 hover:text-blue-900 text-sm mt-1">
-                                    Lihat di Google Maps →
+                                    target="_blank" class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-geo-alt"></i>
+                                    Google Maps
+
                                 </a>
                             @else
-                                <p class="text-gray-500">-</p>
+                                <p class="text-muted">
+                                    Tidak tersedia
+                                </p>
                             @endif
+
                         </div>
+
                     </div>
 
-                    <!-- Check-in Photo -->
-                    @if($presence->check_in_photo)
-                        <div class="mt-6">
-                            <p class="text-gray-600 text-sm mb-3">Foto Check-In</p>
-                            <div class="relative group">
-                                <img src="{{ asset('storage/' . $presence->check_in_photo) }}"
-                                     alt="Check-in photo"
-                                     class="max-w-md h-auto rounded-lg shadow">
-                            </div>
-                        </div>
+                    @if ($presence->check_in_photo)
+                        <hr>
+
+                        <h6 class="mb-3">
+                            Foto Check-In
+                        </h6>
+
+                        <img src="{{ asset('storage/' . $presence->check_in_photo) }}" alt="Check In"
+                            class="img-fluid rounded shadow-sm" style="max-width:500px;">
                     @endif
+
                 </div>
+
             </div>
 
-            <!-- Check-out Information -->
-            @if($presence->check_out_time)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Check-Out</h3>
+        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-gray-600 text-sm mb-2">Jam Keluar</p>
-                                <p class="text-2xl font-bold text-gray-900">
+        {{-- CHECK OUT --}}
+        @if ($presence->check_out_time)
+
+            <div class="col-12">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <h4 class="mb-4">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Informasi Check-Out
+                        </h4>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+
+                                <small class="text-muted">
+                                    Jam Keluar
+                                </small>
+
+                                <h2 class="fw-bold mb-2">
                                     {{ $presence->check_out_time->format('H:i:s') }}
-                                </p>
-                                @if($workHours)
-                                    <p class="text-blue-600 text-sm mt-1">Jam Kerja: {{ number_format($workHours, 2) }} jam</p>
+                                </h2>
+
+                                @if ($workHours)
+                                    <div class="alert alert-info py-2 mb-0">
+                                        Jam Kerja :
+                                        {{ number_format($workHours, 2) }}
+                                        jam
+                                    </div>
                                 @endif
+
                             </div>
 
-                            <div>
-                                <p class="text-gray-600 text-sm mb-2">Lokasi (GPS)</p>
-                                @if($presence->check_out_latitude && $presence->check_out_longitude)
-                                    <p class="text-gray-900 font-mono text-sm">
-                                        {{ $presence->check_out_latitude }}, {{ $presence->check_out_longitude }}
+                            <div class="col-md-6">
+
+                                <small class="text-muted">
+                                    Lokasi GPS
+                                </small>
+
+                                @if ($presence->check_out_latitude && $presence->check_out_longitude)
+                                    <p class="mb-2 font-monospace">
+
+                                        {{ $presence->check_out_latitude }},
+                                        {{ $presence->check_out_longitude }}
+
                                     </p>
+
                                     <a href="https://maps.google.com/?q={{ $presence->check_out_latitude }},{{ $presence->check_out_longitude }}"
-                                       target="_blank" class="text-blue-600 hover:text-blue-900 text-sm mt-1">
-                                        Lihat di Google Maps →
+                                        target="_blank" class="btn btn-sm btn-outline-primary">
+
+                                        <i class="bi bi-geo-alt"></i>
+                                        Google Maps
+
                                     </a>
                                 @else
-                                    <p class="text-gray-500">-</p>
+                                    <p class="text-muted">
+                                        Tidak tersedia
+                                    </p>
                                 @endif
+
                             </div>
+
                         </div>
 
-                        <!-- Check-out Photo -->
-                        @if($presence->check_out_photo)
-                            <div class="mt-6">
-                                <p class="text-gray-600 text-sm mb-3">Foto Check-Out</p>
-                                <div class="relative group">
-                                    <img src="{{ asset('storage/' . $presence->check_out_photo) }}"
-                                         alt="Check-out photo"
-                                         class="max-w-md h-auto rounded-lg shadow">
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @endif
+                        @if ($presence->check_out_photo)
+                            <hr>
 
-            <!-- Notes -->
-            @if($presence->notes)
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Catatan</h3>
-                        <p class="text-gray-900 dark:text-white">{{ $presence->notes }}</p>
+                            <h6 class="mb-3">
+                                Foto Check-Out
+                            </h6>
+
+                            <img src="{{ asset('storage/' . $presence->check_out_photo) }}" alt="Check Out"
+                                class="img-fluid rounded shadow-sm" style="max-width:500px;">
+                        @endif
+
                     </div>
+
                 </div>
-            @endif
-        </div>
+
+            </div>
+
+        @endif
+
+        {{-- CATATAN --}}
+        @if ($presence->notes)
+            <div class="col-12">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <h4 class="mb-3">
+                            <i class="bi bi-chat-left-text me-2"></i>
+                            Catatan
+                        </h4>
+
+                        <p class="mb-0">
+                            {{ $presence->notes }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        @endif
+
     </div>
-</x-app-layout>
+
+</x-admin-layout>
+```

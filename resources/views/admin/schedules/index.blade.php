@@ -1,67 +1,151 @@
 <x-admin-layout>
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">Jadwal Mengajar Guru</h2>
-                <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    Kembali ke Dashboard
-                </a>
-            </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-semibold">Guru</th>
-                            <th class="px-4 py-3 text-center font-semibold">Hari</th>
-                            <th class="px-4 py-3 text-center font-semibold">Jam Mulai</th>
-                            <th class="px-4 py-3 text-center font-semibold">Jam Selesai</th>
-                            <th class="px-4 py-3 text-left font-semibold">Mata Pelajaran</th>
-                            <th class="px-4 py-3 text-left font-semibold">Kelas</th>
-                            <th class="px-4 py-3 text-center font-semibold">Status</th>
-                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse($schedules as $schedule)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3">
-                                    <div>
-                                        <div class="font-medium">{{ $schedule->user->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $schedule->user->email }}</div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 text-center">{{ \App\Models\Schedule::DAY_NAMES[$schedule->day_of_week] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-center">{{ $schedule->start_time }}</td>
-                                <td class="px-4 py-3 text-center">{{ $schedule->end_time }}</td>
-                                <td class="px-4 py-3">{{ $schedule->subject }}</td>
-                                <td class="px-4 py-3">{{ $schedule->class_name }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center justify-center rounded-full px-2 py-1 text-xs font-semibold {{ $schedule->is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
-                                        {{ $schedule->is_active ? 'Aktif' : 'Tidak Aktif' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('teacher.detail', ['user' => $schedule->user->id]) }}" class="text-blue-600 hover:text-blue-900">
-                                        Lihat Guru
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="px-4 py-3 text-center text-gray-500">
-                                    Tidak ada jadwal mengajar
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+    <div class="page-heading mb-4">
+        <div class="page-heading-copy">
+            <span class="page-icon">
+                <i class="bi bi-calendar3"></i>
+            </span>
 
-            <!-- Pagination -->
-            <div class="mt-4">
-                {{ $schedules->links() }}
+            <div>
+                <p class="eyebrow mb-1">Manajemen Jadwal</p>
+                <h1 class="h3 mb-1">Jadwal Mengajar Guru</h1>
+                <p class="text-muted mb-0">
+                    Daftar seluruh jadwal mengajar guru.
+                </p>
             </div>
         </div>
+
+        <div class="heading-actions">
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i>
+                Dashboard
+            </a>
+        </div>
     </div>
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1 section-title">
+                    <i class="bi bi-calendar-week"></i>
+                    <span>Jadwal Mengajar</span>
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Data jadwal mengajar seluruh guru.
+                </p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Guru</th>
+                        <th class="text-center">Hari</th>
+                        <th class="text-center">Jam Mulai</th>
+                        <th class="text-center">Jam Selesai</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Kelas</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @forelse($schedules as $schedule)
+                        <tr>
+
+                            <td>
+                                <div>
+                                    <div class="fw-semibold">
+                                        {{ $schedule->user->name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ $schedule->user->email }}
+                                    </small>
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                {{ \App\Models\Schedule::DAY_NAMES[$schedule->day_of_week] ?? '-' }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ $schedule->start_time }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ $schedule->end_time }}
+                            </td>
+
+                            <td>
+                                {{ $schedule->subject }}
+                            </td>
+
+                            <td>
+                                {{ $schedule->class_name }}
+                            </td>
+
+                            <td class="text-center">
+
+                                @if ($schedule->is_active)
+                                    <span class="badge text-bg-success">
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="badge text-bg-secondary">
+                                        Tidak Aktif
+                                    </span>
+                                @endif
+
+                            </td>
+
+                            <td class="text-center">
+
+                                <a href="{{ route('teacher.detail', ['user' => $schedule->user->id]) }}"
+                                    class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-eye"></i>
+                                    Detail
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="8" class="text-center py-4 text-muted">
+
+                                Tidak ada jadwal mengajar
+
+                            </td>
+
+                        </tr>
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="p-3 border-top">
+
+            {{ $schedules->links() }}
+
+        </div>
+
+    </section>
+
 </x-admin-layout>
+```
