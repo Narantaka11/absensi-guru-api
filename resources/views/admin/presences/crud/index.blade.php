@@ -19,7 +19,69 @@
             </a>
         </div>
     </div>
-
+    <section class="panel mb-4">
+        <div class="panel-header">
+            <h2 class="h5 mb-0">Filter Data Absensi</h2>
+        </div>
+        <div class="panel-body p-4">
+            <form method="GET">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Guru</label>
+                        <select name="user_id" class="form-select">
+                            <option value="">
+                                Semua Guru
+                            </option>
+                            @foreach ($teachers as $teacher)
+                                <option value="{{ $teacher->id }}"
+                                    {{ request('user_id') == $teacher->id ? 'selected' : '' }}>
+                                    {{ $teacher->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">
+                                Semua
+                            </option>
+                            @foreach ($statuses as $key => $label)
+                                <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Bulan</label>
+                        <select name="month" class="form-select">
+                            <option value="">Semua</option>
+                            @for ($i = 1; $i <= 12; $i++)
+                                <option value="{{ $i }}" {{ request('month') == $i ? 'selected' : '' }}>
+                                    {{ DateTime::createFromFormat('!m', $i)->format('F') }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tahun</label>
+                        <input type="number" name="year" class="form-control" value="{{ request('year') }}"
+                            placeholder="2026">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" name="date" class="form-control" value="{{ request('date') }}">
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
     <section class="panel mb-4">
         <div class="panel-header">
             <h2 class="h5 mb-0">Data Absensi</h2>
