@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AttendanceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Presence;
 
 class PresenceController extends Controller
 {
@@ -172,7 +173,100 @@ class PresenceController extends Controller
             return $this->error($e->getMessage(), null, 422);
         }
     }
-
+    public function izin(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+            'attachment' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120'
+            ],
+        ]);
+        $today = now()->toDateString();
+        $alreadyExists = Presence::where(
+            'user_id',
+            $request->user()->id
+        )
+        ->whereDate('presence_date', $today)
+        ->exists();
+        if ($alreadyExists) {
+            return $this->error(
+                'Kamu sudah melakukan absensi hari ini.',
+                [],
+                422
+            );
+        }
+        $attachment = null;
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment')->store(
+                'presences/izin/' . now()->format('Y/m'),
+                'public'
+            );
+        }
+        $presence = Presence::create([
+            'user_id' => $request->user()->id,
+            'presence_date' => $today,
+            'status' => 'izin',
+            'notes' => $validated['notes'],
+            'attachment' => $attachment,
+        ]);
+        return $this->success(
+        'Izin berhasil dikirim.',
+        [
+            'presence' => $presence
+        ],
+        201
+        );
+    }
+    public function sakit(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+            'attachment' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120'
+            ],
+        ]);
+        $today = now()->toDateString();
+        $alreadyExists = Presence::where(
+            'user_id',
+            $request->user()->id
+        )
+        ->whereDate('presence_date', $today)
+        ->exists();
+        if ($alreadyExists) {
+            return $this->error(
+                'Kamu sudah melakukan absensi hari ini.',
+                [],
+                422
+            );
+        }
+        $attachment = null;
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment')->store(
+                'presences/sakit/' . now()->format('Y/m'),
+                'public'
+            );
+        }
+        $presence = Presence::create([
+            'user_id' => $request->user()->id,
+            'presence_date' => $today,
+            'status' => 'sakit',
+            'notes' => $validated['notes'],
+            'attachment' => $attachment,
+        ]);
+        return $this->success(
+            'Sakit berhasil dikirim.',
+            [
+                'presence' => $presence
+            ],
+            201
+        );
+    }
     // =========================================================================
     // Helpers
     // =========================================================================

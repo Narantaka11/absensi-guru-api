@@ -58,6 +58,12 @@ class User extends Authenticatable
         return $this->hasMany(Schedule::class);
     }
 
+    /** Penilaian kinerja */
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
     /** Record gaji */
     public function salaries(): HasMany
     {

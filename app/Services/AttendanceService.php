@@ -365,14 +365,14 @@ class AttendanceService
 
     public function buildSummary(\Illuminate\Support\Collection $presences): array
     {
-        return [
-            'present'    => $presences->where('status', 'hadir')->count(),
-            'late'       => $presences->where('status', 'terlambat')->count(),
-            'absent'     => $presences->where('status', 'tidak_hadir')->count(),
-            'sick'       => $presences->where('status', 'sakit')->count(),
-            'permission' => $presences->where('status', 'izin')->count(),
-            'total'      => $presences->count(),
-        ];
+    return [
+    'hadir' => $presences->where('status', 'hadir')->count(),
+    'terlambat' => $presences->where('status', 'terlambat')->count(),
+    'tidak_hadir' => $presences->where('status', 'tidak_hadir')->count(),
+    'sakit' => $presences->where('status', 'sakit')->count(),
+    'izin' => $presences->where('status', 'izin')->count(),
+    'total' => $presences->count(),
+    ];
     }
 
     public function calculatePercentage(\Illuminate\Support\Collection $presences): float

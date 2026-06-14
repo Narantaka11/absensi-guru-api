@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Detail Absensi {{ $presence->user->name }}
             </h2>
             <a href="{{ route('teacher.detail', ['user' => $presence->user_id, 'month' => $presence->presence_date->month, 'year' => $presence->presence_date->year]) }}" class="text-blue-600 hover:text-blue-900">
@@ -13,21 +13,21 @@
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <!-- Basic Info -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Informasi Dasar</h3>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Dasar</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">Nama</p>
-                            <p class="text-gray-900 dark:text-white font-semibold">{{ $presence->user->name }}</p>
+                            <p class="text-gray-600 text-sm">Nama</p>
+                            <p class="text-gray-900 font-semibold">{{ $presence->user->name }}</p>
                         </div>
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">Tanggal</p>
-                            <p class="text-gray-900 dark:text-white font-semibold">{{ $presence->presence_date->format('d M Y') }}</p>
+                            <p class="text-gray-600 text-sm">Tanggal</p>
+                            <p class="text-gray-900 font-semibold">{{ $presence->presence_date->format('d M Y') }}</p>
                         </div>
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">Status</p>
-                            <p class="text-gray-900 dark:text-white font-semibold">
+                            <p class="text-gray-600 text-sm">Status</p>
+                            <p class="text-gray-900 font-semibold">
                                 <span class="inline-block px-3 py-1 rounded text-white text-sm
                                     @if($presence->status == 'hadir') bg-green-600
                                     @elseif($presence->status == 'terlambat') bg-yellow-600
@@ -41,8 +41,8 @@
                             </p>
                         </div>
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">Lokasi Valid (Radius Sekolah)</p>
-                            <p class="text-gray-900 dark:text-white font-semibold">
+                            <p class="text-gray-600 text-sm">Lokasi Valid (Radius Sekolah)</p>
+                            <p class="text-gray-900 font-semibold">
                                 @if($isWithinRadius)
                                     <span class="text-green-600">✓ Valid</span>
                                 @else
@@ -55,14 +55,14 @@
             </div>
 
             <!-- Check-in Information -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Informasi Check-In</h3>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Check-In</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Jam Masuk</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <p class="text-gray-600 text-sm mb-2">Jam Masuk</p>
+                            <p class="text-2xl font-bold text-gray-900">
                                 {{ $presence->check_in_time ? $presence->check_in_time->format('H:i:s') : '-' }}
                             </p>
                             @if($presence->late_minutes > 0)
@@ -71,9 +71,9 @@
                         </div>
 
                         <div>
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Lokasi (GPS)</p>
+                            <p class="text-gray-600 text-sm mb-2">Lokasi (GPS)</p>
                             @if($presence->check_in_latitude && $presence->check_in_longitude)
-                                <p class="text-gray-900 dark:text-white font-mono text-sm">
+                                <p class="text-gray-900 font-mono text-sm">
                                     {{ $presence->check_in_latitude }}, {{ $presence->check_in_longitude }}
                                 </p>
                                 <a href="https://maps.google.com/?q={{ $presence->check_in_latitude }},{{ $presence->check_in_longitude }}"
@@ -89,7 +89,7 @@
                     <!-- Check-in Photo -->
                     @if($presence->check_in_photo)
                         <div class="mt-6">
-                            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Foto Check-In</p>
+                            <p class="text-gray-600 text-sm mb-3">Foto Check-In</p>
                             <div class="relative group">
                                 <img src="{{ asset('storage/' . $presence->check_in_photo) }}"
                                      alt="Check-in photo"
@@ -102,14 +102,14 @@
 
             <!-- Check-out Information -->
             @if($presence->check_out_time)
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Informasi Check-Out</h3>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-900">Informasi Check-Out</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Jam Keluar</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                                <p class="text-gray-600 text-sm mb-2">Jam Keluar</p>
+                                <p class="text-2xl font-bold text-gray-900">
                                     {{ $presence->check_out_time->format('H:i:s') }}
                                 </p>
                                 @if($workHours)
@@ -118,9 +118,9 @@
                             </div>
 
                             <div>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Lokasi (GPS)</p>
+                                <p class="text-gray-600 text-sm mb-2">Lokasi (GPS)</p>
                                 @if($presence->check_out_latitude && $presence->check_out_longitude)
-                                    <p class="text-gray-900 dark:text-white font-mono text-sm">
+                                    <p class="text-gray-900 font-mono text-sm">
                                         {{ $presence->check_out_latitude }}, {{ $presence->check_out_longitude }}
                                     </p>
                                     <a href="https://maps.google.com/?q={{ $presence->check_out_latitude }},{{ $presence->check_out_longitude }}"
@@ -136,7 +136,7 @@
                         <!-- Check-out Photo -->
                         @if($presence->check_out_photo)
                             <div class="mt-6">
-                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Foto Check-Out</p>
+                                <p class="text-gray-600 text-sm mb-3">Foto Check-Out</p>
                                 <div class="relative group">
                                     <img src="{{ asset('storage/' . $presence->check_out_photo) }}"
                                          alt="Check-out photo"

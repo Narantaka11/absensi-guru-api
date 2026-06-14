@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\API\AdminPresenceController;
 use App\Http\Controllers\API\AdminRecapController;
+use App\Http\Controllers\API\AssessmentController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\PresenceController;
 use App\Http\Controllers\API\PayrollController;
+use App\Http\Controllers\API\TeacherController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ScheduleController;
 
 Route::prefix('v1')->group(function (): void {
 
@@ -44,6 +47,8 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/summary',    [PresenceController::class, 'summary']); // ringkasan bulan
             Route::post('/check-in',  [PresenceController::class, 'checkIn']);  // Day 4 — foto wajib + geofence
             Route::post('/check-out', [PresenceController::class, 'checkOut']); // Day 4 — foto wajib + geofence
+            Route::post('/izin',      [PresenceController::class, 'izin']);  // Day 4 — izin (tanpa geofence, tapi wajib foto)
+            Route::post('/sakit',     [PresenceController::class, 'sakit']); // Day 4 — sakit (tanpa geofence, tapi wajib foto)
         });
 
         // =====================================================================
@@ -53,6 +58,13 @@ Route::prefix('v1')->group(function (): void {
         Route::prefix('payroll')->group(function (): void {
             Route::get('/me',       [PayrollController::class, 'mySlip']);    // slip bulan ini
             Route::get('/history',  [PayrollController::class, 'myHistory']); // histori per tahun
+        });
+
+        // =====================================================================
+        // Jadwal Mengajar — guru (teacher)
+        // =====================================================================
+        Route::prefix('schedules')->group(function (): void {
+            Route::get('/',[ScheduleController::class, 'index']);
         });
 
         // =====================================================================
@@ -93,6 +105,19 @@ Route::prefix('v1')->group(function (): void {
                 Route::post('/{salary}/paid',     [PayrollController::class, 'markAsPaid']);   // tandai sudah dibayar (approved→paid)
                 Route::post('/{salary}/revert',   [PayrollController::class, 'revert']);       // kembalikan ke draft (approved→draft)
             });
+
+            // Penilaian Kinerja Guru
+            Route::prefix('assessments')->group(function (): void {
+                Route::get('/', [AssessmentController::class, 'index']);
+                Route::post('/', [AssessmentController::class, 'store']);
+                Route::get('/unassessed-teachers', [AssessmentController::class, 'unassessedTeachers']);
+                Route::get('/{assessment}', [AssessmentController::class, 'show']);
+                Route::put('/{assessment}', [AssessmentController::class, 'update']);
+                Route::delete('/{assessment}', [AssessmentController::class, 'destroy']);
+            });
+
+            // CRUD Guru
+            Route::apiResource('teachers', TeacherController::class)->parameters(['teachers' => 'user']);
         });
     });
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Presence;
 use App\Models\Salary;
+use App\Models\Schedule;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 
@@ -119,6 +120,11 @@ class DashboardController extends Controller
             'permission' => $allPresences->where('status', 'izin')->count(),
         ];
 
+        $schedules = $user->schedules()
+            ->orderBy('day_of_week')
+            ->orderBy('start_time')
+            ->get();
+
         // Get salary data if exists
         $salary = Salary::byUser($user->id)
             ->byMonth($month, $year)
@@ -129,6 +135,7 @@ class DashboardController extends Controller
             'presences' => $presences,
             'summary' => $summary,
             'salary' => $salary,
+            'schedules' => $schedules,
             'currentMonth' => $month,
             'currentYear' => $year,
         ]);
