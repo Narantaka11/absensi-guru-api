@@ -20,8 +20,7 @@ class AssessmentCrudController extends Controller
         $query = Assessment::with(['user.teacher'])
             ->orderByDesc('year')
             ->orderByDesc('month')
-            ->orderByDesc('id');
-
+            ->orderByDesc('saw_score');
         if ($request->filled('month')) {
             $query->where('month', $request->month);
         }
@@ -32,8 +31,8 @@ class AssessmentCrudController extends Controller
 
         $assessments = $query->paginate(20)->withQueryString();
 
-        $assessedUserIds = Assessment::when($request->filled('month'), fn ($q) => $q->where('month', $request->month))
-            ->when($request->filled('year'), fn ($q) => $q->where('year', $request->year))
+        $assessedUserIds = Assessment::when($request->filled('month'), fn($q) => $q->where('month', $request->month))
+            ->when($request->filled('year'), fn($q) => $q->where('year', $request->year))
             ->pluck('user_id');
 
         $unassessedTeachers = User::where('role', User::ROLE_TEACHER)
@@ -68,13 +67,13 @@ class AssessmentCrudController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'user_id'       => ['required', 'integer', 'exists:users,id'],
-            'absensi'       => ['required', 'numeric', 'min:0', 'max:100'],
-            'disiplin'      => ['required', 'numeric', 'min:0', 'max:100'],
-            'keterampilan'  => ['required', 'numeric', 'min:0', 'max:100'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'absensi' => ['required', 'numeric', 'min:0', 'max:100'],
+            'disiplin' => ['required', 'numeric', 'min:0', 'max:100'],
+            'keterampilan' => ['required', 'numeric', 'min:0', 'max:100'],
             'produktivitas' => ['required', 'numeric', 'min:0', 'max:100'],
-            'month'         => ['required', 'integer', 'min:1', 'max:12'],
-            'year'          => ['required', 'integer', 'min:2020', 'max:2099'],
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year' => ['required', 'integer', 'min:2020', 'max:2099'],
         ]);
 
         $user = User::find($validated['user_id']);
@@ -100,6 +99,10 @@ class AssessmentCrudController extends Controller
 
         DB::transaction(function () use ($validated) {
             Assessment::create($validated);
+            Assessment::calculateSaw(
+                $validated['month'],
+                $validated['year']
+            );
         });
 
         return redirect()
@@ -124,13 +127,13 @@ class AssessmentCrudController extends Controller
     public function update(Request $request, Assessment $assessment): RedirectResponse
     {
         $validated = $request->validate([
-            'user_id'       => ['required', 'integer', 'exists:users,id'],
-            'absensi'       => ['required', 'numeric', 'min:0', 'max:100'],
-            'disiplin'      => ['required', 'numeric', 'min:0', 'max:100'],
-            'keterampilan'  => ['required', 'numeric', 'min:0', 'max:100'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'absensi' => ['required', 'numeric', 'min:0', 'max:100'],
+            'disiplin' => ['required', 'numeric', 'min:0', 'max:100'],
+            'keterampilan' => ['required', 'numeric', 'min:0', 'max:100'],
             'produktivitas' => ['required', 'numeric', 'min:0', 'max:100'],
-            'month'         => ['required', 'integer', 'min:1', 'max:12'],
-            'year'          => ['required', 'integer', 'min:2020', 'max:2099'],
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year' => ['required', 'integer', 'min:2020', 'max:2099'],
         ]);
 
         $user = User::find($validated['user_id']);
@@ -157,6 +160,10 @@ class AssessmentCrudController extends Controller
 
         DB::transaction(function () use ($assessment, $validated) {
             $assessment->update($validated);
+            Assessment::calculateSaw(
+                $validated['month'],
+                $validated['year']
+            );
         });
 
         return redirect()
@@ -166,8 +173,13 @@ class AssessmentCrudController extends Controller
 
     public function destroy(Assessment $assessment): RedirectResponse
     {
+        $month = $assessment->month;
+        $year = $assessment->year;
         $assessment->delete();
-
-        return back()->with('success', 'Penilaian guru berhasil dihapus.');
+        Assessment::calculateSaw($month, $year);
+        return back()->with(
+            'success',
+            'Penilaian guru berhasil dihapus.'
+        );
     }
 }

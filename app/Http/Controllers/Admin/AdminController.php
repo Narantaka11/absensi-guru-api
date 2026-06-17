@@ -12,23 +12,26 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function __construct(private readonly AttendanceService $attendanceService) {}
-
+    public function __construct(private readonly AttendanceService $attendanceService)
+    {
+    }
     /**
      * Daftar Guru
      */
     public function teachers(Request $request): View
     {
         $teachers = User::where('role', User::ROLE_TEACHER)
-            ->with('teacher')
-            ->paginate(20);
-
+            ->with('teacher.location')
+            ->when($request->search, function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->search . '%');
+            })
+            ->paginate(20)
+            ->withQueryString();
         return view('admin.teachers.index', [
             'teachers' => $teachers,
             'title' => 'Daftar Guru'
         ]);
     }
-
     /**
      * Jadwal Guru
      */
@@ -80,7 +83,7 @@ class AdminController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($summary) {
+        $callback = function () use ($summary) {
             $file = fopen('php://output', 'w');
 
             // Header CSV

@@ -158,7 +158,7 @@
                     <div class="col-md-3">
 
                         <label class="form-label">
-                            Absensi
+                            Kehadiran
                         </label>
 
                         <input type="number" id="absensi" name="absensi" min="0" max="100" step="0.01"

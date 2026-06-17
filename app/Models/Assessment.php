@@ -14,6 +14,7 @@ class Assessment extends Model
         'keterampilan',
         'produktivitas',
         'total',
+        'saw_score',
         'month',
         'year',
     ];
@@ -23,6 +24,7 @@ class Assessment extends Model
         'disiplin' => 'decimal:2',
         'keterampilan' => 'decimal:2',
         'produktivitas' => 'decimal:2',
+        'saw_score' => 'decimal:4',
         'total' => 'decimal:2',
     ];
 
@@ -34,4 +36,36 @@ class Assessment extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function calculateSaw(int $month, int $year): void
+{
+    $items = self::where('month', $month)
+        ->where('year', $year)
+        ->get();
+
+    if ($items->isEmpty()) {
+        return;
+    }
+
+    $maxAbsensi = $items->max('absensi');
+    $maxDisiplin = $items->max('disiplin');
+    $maxProduktivitas = $items->max('produktivitas');
+    $maxKeterampilan = $items->max('keterampilan');
+
+    foreach ($items as $item) {
+
+        $score =
+            (($item->absensi / max($maxAbsensi, 1)) * 0.20)
+            +
+            (($item->disiplin / max($maxDisiplin, 1)) * 0.25)
+            +
+            (($item->produktivitas / max($maxProduktivitas, 1)) * 0.35)
+            +
+            (($item->keterampilan / max($maxKeterampilan, 1)) * 0.20);
+
+        $item->update([
+            'saw_score' => round($score, 4),
+        ]);
+    }
+}
 }

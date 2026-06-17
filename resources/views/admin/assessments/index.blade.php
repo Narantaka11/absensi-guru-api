@@ -182,11 +182,13 @@
                     <tr>
                         <th>Nama Guru</th>
                         <th>Periode</th>
-                        <th class="text-end">Absensi</th>
-                        <th class="text-end">Disiplin</th>
-                        <th class="text-end">Keterampilan</th>
-                        <th class="text-end">Produktivitas</th>
-                        <th class="text-end">Total</th>
+                        <th class="text-center">Kehadiran</th>
+                        <th class="text-center">Disiplin</th>
+                        <th class="text-center">Keterampilan</th>
+                        <th class="text-center">Produktivitas</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">SAW Score</th>
+                        <th class="text-center">Ranking</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -204,25 +206,33 @@
                                 {{ date('F Y', mktime(0, 0, 0, $assessment->month, 1, $assessment->year)) }}
                             </td>
 
-                            <td class="text-end">
+                            <td class="text-center">
                                 {{ number_format($assessment->absensi, 2) }}
                             </td>
 
-                            <td class="text-end">
+                            <td class="text-center">
                                 {{ number_format($assessment->disiplin, 2) }}
                             </td>
 
-                            <td class="text-end">
+                            <td class="text-center">
                                 {{ number_format($assessment->keterampilan, 2) }}
                             </td>
 
-                            <td class="text-end">
+                            <td class="text-center">
                                 {{ number_format($assessment->produktivitas, 2) }}
                             </td>
 
-                            <td class="text-end fw-bold">
+                            <td class="text-center fw-bold">
                                 {{ number_format($assessment->total, 2) }}
                             </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">
+                                    {{ number_format($assessment->saw_score, 4) }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                #{{ $loop->iteration }}
+                            </td class="text-center">
 
                             <td class="text-center">
 

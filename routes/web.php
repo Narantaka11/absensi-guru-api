@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AssessmentCrudController;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\TeacherCrudController;
 
 Route::get('/', function () {
     if (!Auth::check()) {
@@ -35,12 +36,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // CRUD Absensi Admin
     Route::prefix('admin/presences/data')->name('admin.presences.crud.')->group(function () {
-        Route::get('/',              [PresenceCrudController::class, 'index'])  ->name('index');
-        Route::get('/create',        [PresenceCrudController::class, 'create']) ->name('create');
-        Route::post('/',             [PresenceCrudController::class, 'store'])  ->name('store');
-        Route::get('/{presence}',    [PresenceCrudController::class, 'show'])   ->name('show');
-        Route::get('/{presence}/edit',[PresenceCrudController::class, 'edit'])  ->name('edit');
-        Route::put('/{presence}',    [PresenceCrudController::class, 'update']) ->name('update');
+        Route::get('/', [PresenceCrudController::class, 'index'])->name('index');
+        Route::get('/create', [PresenceCrudController::class, 'create'])->name('create');
+        Route::post('/', [PresenceCrudController::class, 'store'])->name('store');
+        Route::get('/{presence}', [PresenceCrudController::class, 'show'])->name('show');
+        Route::get('/{presence}/edit', [PresenceCrudController::class, 'edit'])->name('edit');
+        Route::put('/{presence}', [PresenceCrudController::class, 'update'])->name('update');
         Route::delete('/{presence}', [PresenceCrudController::class, 'destroy'])->name('destroy');
     });
     Route::get('/admin/teacher/{user}/detail', [DashboardController::class, 'teacherDetail'])->name('teacher.detail');
@@ -53,7 +54,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::put('schedules/{schedule}', [ScheduleController::class, 'update'])->name('schedules.update');
         Route::delete('schedules/{schedule}', [ScheduleController::class, 'destroy'])->name('schedules.destroy');
     });
+    Route::prefix('admin/teachers')->name('admin.teachers.')->group(function () {
+        Route::get('/create', [TeacherCrudController::class, 'create'])->name('create');
+        Route::post('/store', [TeacherCrudController::class, 'store'])->name('store');
+        Route::get('/{teacher}/edit', [TeacherCrudController::class, 'edit'])->name('edit');
+        Route::put('/{teacher}/update', [TeacherCrudController::class, 'update'])->name('update');
+        Route::delete('/{teacher}/delete', [TeacherCrudController::class, 'destroy'])->name('destroy');
+    });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
