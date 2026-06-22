@@ -19,22 +19,56 @@ class AssessmentController extends Controller
      * Display a listing of the resource.
      */
     /**
- * Riwayat penilaian guru login.
- */
+     * Riwayat penilaian guru login.
+     */
     public function myAssessments(Request $request): JsonResponse
     {
         $assessments = Assessment::where(
             'user_id',
             $request->user()->id
         )
-        ->orderBy('year', 'desc')
-        ->orderBy('month', 'desc')
-        ->get();
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->get();
+
+        $items = $assessments->map(function ($assessment) {
+
+            $ranking = Assessment::where(
+                'month',
+                $assessment->month
+            )
+                ->where(
+                    'year',
+                    $assessment->year
+                )
+                ->where(
+                    'saw_score',
+                    '>',
+                    $assessment->saw_score
+                )
+                ->count() + 1;
+
+            return [
+                'id' => $assessment->id,
+                'month' => $assessment->month,
+                'year' => $assessment->year,
+
+                'absensi' => $assessment->absensi,
+                'disiplin' => $assessment->disiplin,
+                'keterampilan' => $assessment->keterampilan,
+                'produktivitas' => $assessment->produktivitas,
+
+                'total' => $assessment->total,
+                'saw_score' => $assessment->saw_score,
+
+                'ranking' => $ranking,
+            ];
+        });
 
         return $this->success(
             'Data penilaian berhasil diambil.',
             [
-                'items' => $assessments,
+                'items' => $items,
             ]
         );
     }
@@ -42,9 +76,9 @@ class AssessmentController extends Controller
     {
         $validated = $request->validate([
             'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
-            'month'      => ['nullable', 'integer', 'min:1', 'max:12'],
-            'year'       => ['nullable', 'integer', 'min:2020', 'max:2099'],
-            'per_page'   => ['nullable', 'integer', 'min:5', 'max:100'],
+            'month' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'year' => ['nullable', 'integer', 'min:2020', 'max:2099'],
+            'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
         ]);
 
         $query = Assessment::with(['user.teacher']);
@@ -66,12 +100,12 @@ class AssessmentController extends Controller
             ->paginate($validated['per_page'] ?? 20);
 
         return $this->success('Daftar penilaian berhasil diambil.', [
-            'items'      => $paginator->items(),
+            'items' => $paginator->items(),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => $paginator->lastPage(),
-                'per_page'     => $paginator->perPage(),
-                'total'        => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
             ],
         ]);
     }
@@ -82,13 +116,13 @@ class AssessmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_id'       => ['required', 'integer', 'exists:users,id'],
-            'absensi'       => ['required', 'numeric', 'min:0', 'max:100'],
-            'disiplin'      => ['required', 'numeric', 'min:0', 'max:100'],
-            'keterampilan'  => ['required', 'numeric', 'min:0', 'max:100'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'absensi' => ['required', 'numeric', 'min:0', 'max:100'],
+            'disiplin' => ['required', 'numeric', 'min:0', 'max:100'],
+            'keterampilan' => ['required', 'numeric', 'min:0', 'max:100'],
             'produktivitas' => ['required', 'numeric', 'min:0', 'max:100'],
-            'month'         => ['required', 'integer', 'min:1', 'max:12'],
-            'year'          => ['required', 'integer', 'min:2020', 'max:2099'],
+            'month' => ['required', 'integer', 'min:1', 'max:12'],
+            'year' => ['required', 'integer', 'min:2020', 'max:2099'],
         ]);
 
         // Check if user is teacher
@@ -133,9 +167,9 @@ class AssessmentController extends Controller
     public function update(Request $request, Assessment $assessment): JsonResponse
     {
         $validated = $request->validate([
-            'absensi'       => ['sometimes', 'numeric', 'min:0', 'max:100'],
-            'disiplin'      => ['sometimes', 'numeric', 'min:0', 'max:100'],
-            'keterampilan'  => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'absensi' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'disiplin' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'keterampilan' => ['sometimes', 'numeric', 'min:0', 'max:100'],
             'produktivitas' => ['sometimes', 'numeric', 'min:0', 'max:100'],
         ]);
 
@@ -157,7 +191,7 @@ class AssessmentController extends Controller
     {
         $validated = $request->validate([
             'month' => ['required', 'integer', 'min:1', 'max:12'],
-            'year'  => ['required', 'integer', 'min:2020', 'max:2099'],
+            'year' => ['required', 'integer', 'min:2020', 'max:2099'],
             'per_page' => ['nullable', 'integer', 'min:5', 'max:100'],
         ]);
 
@@ -173,13 +207,13 @@ class AssessmentController extends Controller
 
         return $this->success('Daftar guru yang belum dinilai berhasil diambil.', [
             'month' => $validated['month'],
-            'year'  => $validated['year'],
+            'year' => $validated['year'],
             'items' => $paginator->items(),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => $paginator->lastPage(),
-                'per_page'     => $paginator->perPage(),
-                'total'        => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
             ],
         ]);
     }
@@ -189,8 +223,8 @@ class AssessmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data'    => $data,
-            'errors'  => null,
+            'data' => $data,
+            'errors' => null,
         ], $status);
     }
 
@@ -199,8 +233,8 @@ class AssessmentController extends Controller
         return response()->json([
             'success' => false,
             'message' => $message,
-            'data'    => [],
-            'errors'  => $errors,
+            'data' => [],
+            'errors' => $errors,
         ], $status);
     }
 }

@@ -30,9 +30,9 @@ class AuthService
         $token = $user->createToken($deviceName)->plainTextToken;
 
         return [
-            'token'      => $token,
+            'token' => $token,
             'token_type' => 'Bearer',
-            'user'       => $this->formatUser($user),
+            'user' => $this->formatUser($user),
         ];
     }
 
@@ -57,11 +57,19 @@ class AuthService
      */
     public function formatUser(User $user): array
     {
+        $user->loadMissing('teacher');
+
         return [
-            'id'    => $user->id,
-            'name'  => $user->name,
+            'id' => $user->id,
+            'name' => $user->name,
             'email' => $user->email,
-            'role'  => $user->role,
+            'role' => $user->role,
+
+            'teacher' => $user->teacher ? [
+                'nip' => $user->teacher->nip,
+                'subject' => $user->teacher->subject,
+                'status' => $user->teacher->employment_status,
+            ] : null,
         ];
     }
 }
